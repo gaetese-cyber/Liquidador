@@ -1,0 +1,2882 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SueldosComercio PRO v6 — CCT 130/75</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0b0d12;--surf:#13161f;--surf2:#1a1e2a;--surf3:#222636;
+  --brd:#252a3a;--acc:#3b82f6;--acc2:#22d3ee;--grn:#10b981;
+  --red:#f43f5e;--ylw:#f59e0b;--pur:#a78bfa;
+  --txt:#e2e8f0;--txt2:#94a3b8;--txt3:#64748b;
+  --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--r:5px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);font-size:13px;overflow:hidden;height:100vh}
+
+/* TOPBAR */
+.topbar{height:44px;background:var(--surf);border-bottom:1px solid var(--brd);display:flex;align-items:center;padding:0 14px;gap:8px;position:fixed;top:0;left:0;right:0;z-index:200}
+.t-logo{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--acc2);letter-spacing:.06em;white-space:nowrap}
+.t-sep{color:var(--brd);font-size:16px}
+.t-esel{background:var(--surf2);border:1px solid var(--brd);color:var(--txt);font-family:var(--mono);font-size:11px;padding:4px 8px;border-radius:var(--r);outline:none;cursor:pointer;max-width:200px}
+.t-btn{background:var(--surf2);border:1px solid var(--brd);color:var(--txt2);font-family:var(--mono);font-size:10px;padding:4px 9px;border-radius:var(--r);cursor:pointer;transition:.15s;white-space:nowrap}
+.t-btn:hover{border-color:var(--acc2);color:var(--acc2)}
+.t-btn.alerta{border-color:var(--red);color:var(--red);animation:pulse-red 2s infinite}
+@keyframes pulse-red{0%,100%{opacity:1}50%{opacity:.5}}
+.t-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:280px 1fr;height:calc(100vh - 44px);margin-top:44px}
+.sidebar{background:var(--surf);border-right:1px solid var(--brd);display:flex;flex-direction:column;overflow:hidden}
+.stabs{display:flex;border-bottom:1px solid var(--brd);flex-shrink:0;overflow-x:auto}
+.stab{flex:1;min-width:55px;padding:8px 3px;font-family:var(--mono);font-size:9px;color:var(--txt3);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap}
+.stab.on{color:var(--acc2);border-bottom-color:var(--acc2);background:rgba(34,211,238,.04)}
+.sbody{overflow-y:auto;flex:1}
+.shdr{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--txt3);letter-spacing:.12em;text-transform:uppercase;padding:9px 13px 5px;border-bottom:1px solid var(--brd);background:var(--bg);position:sticky;top:0;z-index:5}
+
+/* FIELDS */
+.fg{padding:8px 13px;border-bottom:1px solid rgba(37,42,58,.5)}
+.fl{display:block;font-size:9px;font-family:var(--mono);color:var(--txt3);letter-spacing:.07em;margin-bottom:3px}
+.fi{width:100%;background:var(--bg);border:1px solid var(--brd);color:var(--txt);font-family:var(--mono);font-size:11px;padding:5px 8px;border-radius:var(--r);outline:none;transition:.15s}
+.fi:focus{border-color:var(--acc)}
+.fi.err{border-color:var(--red)}
+.fi option{background:var(--bg)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ferr{font-family:var(--mono);font-size:9px;color:var(--red);margin-top:3px;display:none}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:6px 11px;border:none;border-radius:var(--r);cursor:pointer;transition:.15s;white-space:nowrap}
+.bp{background:var(--acc);color:#fff}.bp:hover{background:#2563eb}
+.bg{background:var(--grn);color:#fff}.bg:hover{background:#059669}
+.bc{background:var(--acc2);color:#0b0d12}.bc:hover{background:#06b6d4}
+.by{background:var(--ylw);color:#0b0d12}.by:hover{background:#d97706}
+.br{background:var(--red);color:#fff}.br:hover{background:#e11d48}
+.bh{background:var(--surf2);color:var(--txt2);border:1px solid var(--brd)}.bh:hover{border-color:var(--acc);color:var(--acc)}
+.bw{width:100%}
+.brow{padding:8px 13px;display:flex;flex-direction:column;gap:5px}
+
+/* CARDS */
+.ecard{padding:8px 13px;border-bottom:1px solid var(--brd);cursor:pointer;transition:.1s;display:flex;align-items:center;gap:8px}
+.ecard:hover{background:var(--surf2)}
+.ecard.active{background:rgba(59,130,246,.1);border-left:2px solid var(--acc)}
+.ecard-ico{width:28px;height:28px;border-radius:6px;background:var(--surf3);border:1px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ecard-info{flex:1;min-width:0}
+.ecard-name{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ecard-sub{font-size:9px;font-family:var(--mono);color:var(--txt3)}
+.edit-btn{background:none;border:1px solid var(--brd);color:var(--txt3);padding:2px 5px;border-radius:3px;font-size:9px;cursor:pointer;font-family:var(--mono);flex-shrink:0}
+.edit-btn:hover{border-color:var(--acc);color:var(--acc)}
+
+/* MAIN */
+.main{overflow-y:auto;background:var(--bg);padding:18px 22px}
+.sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.scard{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:11px 13px}
+.scard-lbl{font-family:var(--mono);font-size:9px;color:var(--txt3);letter-spacing:.07em;margin-bottom:4px}
+.scard-val{font-family:var(--mono);font-size:16px;font-weight:600}
+
+/* RECIBO */
+.rwrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+.recibo{background:#fff;color:#000;padding:14px 16px;border-radius:3px;font-family:Arial,sans-serif;font-size:9.5px;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.r-copy{text-align:right;font-size:7.5px;font-weight:bold;color:#555;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:7px;text-transform:uppercase;letter-spacing:.1em}
+.r-tabla{width:100%;border-collapse:collapse;margin-bottom:5px;font-size:8px}
+.r-tabla th{background:#000;color:#fff;padding:2px 4px;text-align:left;font-size:7px}
+.r-tabla th.r,.r-tabla td.r{text-align:right}
+.r-tabla td{padding:1.5px 4px;border-bottom:1px solid #e5e5e5}
+.r-tabla tr.nr-row td{background:#f0f7ff}
+.r-tabla tr.desc-row td{background:#fff5f5}
+.rfirma{border-top:1px solid #000;padding-top:3px;text-align:center;font-size:7.5px;min-width:90px}
+
+/* BIBLIOTECA */
+.bib-section{margin-bottom:10px}
+.bib-section-title{font-family:var(--mono);font-size:9px;font-weight:600;color:var(--txt3);letter-spacing:.1em;text-transform:uppercase;padding:5px 0 3px;border-bottom:1px solid var(--brd);margin-bottom:5px}
+.bib-item{display:flex;align-items:center;gap:7px;padding:4px 7px;border:1px solid var(--brd);border-radius:var(--r);margin-bottom:3px;background:var(--bg);cursor:pointer;transition:.12s}
+.bib-item:hover{border-color:var(--acc2);background:rgba(34,211,238,.04)}
+.bib-item.selected{border-color:var(--acc2);background:rgba(34,211,238,.08)}
+.bib-cod{font-family:var(--mono);font-size:9px;color:var(--txt3);min-width:72px}
+.bib-nombre{font-size:11px;flex:1}
+.bib-tipo{font-family:var(--mono);font-size:8px;padding:1px 5px;border-radius:3px}
+.bib-tipo.rem{background:rgba(16,185,129,.15);color:var(--grn)}
+.bib-tipo.nr{background:rgba(34,211,238,.12);color:var(--acc2)}
+.bib-tipo.desc{background:rgba(244,63,94,.12);color:var(--red)}
+.bib-check{width:15px;height:15px;accent-color:var(--acc2);flex-shrink:0}
+
+/* CONCEPTOS */
+.conc-item{display:flex;align-items:center;gap:6px;padding:6px 12px;border-bottom:1px solid rgba(37,42,58,.4);cursor:pointer;transition:.1s}
+.conc-item:hover{background:var(--surf2)}
+.conc-item:last-child{border-bottom:none}
+.conc-tipo{font-family:var(--mono);font-size:8px;padding:1px 4px;border-radius:3px;flex-shrink:0}
+.conc-tipo.rem{background:rgba(16,185,129,.15);color:var(--grn)}
+.conc-tipo.nr{background:rgba(34,211,238,.12);color:var(--acc2)}
+.conc-tipo.desc{background:rgba(244,63,94,.12);color:var(--red)}
+.conc-nombre{flex:1;font-size:11px}
+.conc-monto{font-family:var(--mono);font-size:10px;color:var(--txt2);text-align:right;min-width:80px}
+
+/* RETENCIONES */
+.ret-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.ret-item{display:flex;align-items:center;gap:7px;font-size:10px;cursor:pointer;padding:4px 6px;border:1px solid var(--brd);border-radius:var(--r);background:var(--bg);transition:.12s}
+.ret-item:hover{border-color:var(--acc2)}
+.ret-item input{width:14px;height:14px;accent-color:var(--acc2);cursor:pointer;flex-shrink:0}
+.ret-section{background:var(--surf3);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px}
+.ret-title{font-family:var(--mono);font-size:9px;color:var(--acc2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.08em}
+
+/* PERÍODO CARD */
+.per-card{padding:8px 13px;border-bottom:1px solid var(--brd);cursor:pointer;transition:.1s;display:flex;justify-content:space-between;align-items:center}
+.per-card:hover{background:var(--surf2)}
+.per-badge{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--acc2)}
+.per-sub{font-family:var(--mono);font-size:9px;color:var(--txt3);margin-top:2px}
+
+/* HISTORIAL */
+.hist-item{padding:8px 13px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px;font-size:11px}
+.hist-per{font-family:var(--mono);font-size:10px;color:var(--acc2);min-width:55px}
+.hist-nom{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-neto{font-family:var(--mono);font-size:11px;color:var(--grn);min-width:90px;text-align:right}
+.hist-btn{background:none;border:1px solid var(--brd);color:var(--txt3);padding:2px 5px;border-radius:3px;font-size:9px;cursor:pointer;font-family:var(--mono)}
+.hist-btn:hover{border-color:var(--acc2);color:var(--acc2)}
+
+/* RESUMEN EMPRESA */
+.res-tabla{width:100%;border-collapse:collapse;font-size:11px}
+.res-tabla th{background:var(--surf3);padding:7px 10px;font-family:var(--mono);font-size:9px;color:var(--txt3);text-align:left;border-bottom:1px solid var(--brd)}
+.res-tabla th.r,.res-tabla td.r{text-align:right}
+.res-tabla td{padding:6px 10px;border-bottom:1px solid rgba(37,42,58,.4)}
+.res-tabla tr:hover td{background:var(--surf2)}
+.res-total{font-family:var(--mono);font-weight:600}
+
+/* VALIDACIONES */
+.val-ok{color:var(--grn);font-family:var(--mono);font-size:10px}
+.val-err{color:var(--red);font-family:var(--mono);font-size:10px}
+.val-warn{color:var(--ylw);font-family:var(--mono);font-size:10px}
+
+/* LIQ MULTIPLE */
+.multi-emp-row{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:1px solid rgba(37,42,58,.4)}
+.multi-emp-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--acc2)}
+.multi-emp-nombre{flex:1;font-size:11px}
+.multi-emp-estado{font-family:var(--mono);font-size:10px;min-width:90px;text-align:right}
+
+/* VENCIMIENTO */
+.vcto-item{display:flex;align-items:center;gap:10px;padding:8px 13px;border-bottom:1px solid var(--brd)}
+.vcto-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:3px;flex-shrink:0}
+.vcto-badge.urgente{background:rgba(244,63,94,.15);color:var(--red)}
+.vcto-badge.proximo{background:rgba(245,158,11,.15);color:var(--ylw)}
+.vcto-badge.ok{background:rgba(16,185,129,.1);color:var(--grn)}
+.vcto-desc{flex:1;font-size:11px}
+.vcto-fecha{font-family:var(--mono);font-size:10px;color:var(--txt3)}
+
+/* MISC */
+.aviso{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:var(--r);padding:6px 9px;font-family:var(--mono);font-size:10px;color:var(--ylw)}
+.info-box{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:var(--r);padding:9px 12px;font-family:var(--mono);font-size:10px;color:var(--acc2)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:55vh;gap:10px;color:var(--txt3);font-family:var(--mono);font-size:12px}
+.empty-ico{font-size:44px;opacity:.25}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:flex-start;justify-content:center;padding-top:28px;overflow-y:auto}
+.mo.open{display:flex}
+.mo-box{background:var(--surf);border:1px solid var(--brd);border-radius:8px;width:520px;margin-bottom:40px}
+.mo-box.wide{width:660px}
+.mo-box.xwide{width:800px}
+.mo-hdr{padding:13px 16px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
+.mo-title{font-family:var(--mono);font-size:12px;color:var(--acc2)}
+.mo-x{background:none;border:none;color:var(--txt3);font-size:20px;cursor:pointer;line-height:1}
+.mo-body{padding:16px;display:grid;gap:9px}
+.mo-foot{padding:13px 16px;border-top:1px solid var(--brd);display:flex;gap:7px;justify-content:flex-end}
+
+.toast{position:fixed;bottom:18px;right:18px;z-index:9999;background:var(--surf2);border:1px solid var(--grn);color:var(--grn);padding:8px 13px;border-radius:var(--r);font-family:var(--mono);font-size:11px;transform:translateY(60px);opacity:0;transition:.3s;pointer-events:none;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{border-color:var(--red);color:var(--red)}
+
+/* PROGRESS BAR */
+.prog-bar{height:4px;background:var(--brd);border-radius:2px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;background:var(--acc2);transition:width .3s;border-radius:2px}
+
+@media print{
+  .topbar,.sidebar,.abar,.sgrid{display:none!important}
+  .layout{display:block}
+  .main{overflow:visible;padding:0}
+  .rwrap{display:block}
+  .recibo{box-shadow:none;page-break-after:always;margin-bottom:0}
+  body{background:#fff}
+}
+
+/* ── RECIBO PROFESIONAL ── */
+.recibos-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px}
+
+.recibo-pro{
+  background:#fff;color:#1a1a2e;
+  font-family:'Arial',sans-serif;font-size:8.5px;
+  border-radius:3px;
+  box-shadow:0 8px 40px rgba(0,0,0,.55);
+  position:relative;overflow:hidden;
+  border:1px solid #ddd;
+}
+
+/* Línea de color lateral izquierda */
+.recibo-pro::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,#1a237e,#283593,#1565c0);
+}
+
+/* MARCA DE AGUA */
+.r-watermark{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);
+  font-size:52px;font-weight:900;color:rgba(26,35,126,.045);
+  letter-spacing:.2em;white-space:nowrap;pointer-events:none;
+  font-family:'Arial Black',sans-serif;z-index:0;
+}
+
+/* HEADER */
+.r-header{
+  background:linear-gradient(135deg,#1a237e 0%,#283593 60%,#1565c0 100%);
+  color:#fff;padding:12px 16px 12px 20px;
+  display:flex;justify-content:space-between;align-items:flex-start;
+  position:relative;z-index:1;
+}
+.r-empresa-nombre{font-size:14px;font-weight:700;letter-spacing:.02em;margin-bottom:3px}
+.r-empresa-datos{font-size:9px;opacity:.85;letter-spacing:.01em}
+.r-header-right{text-align:right}
+.r-titulo{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.r-subtitulo{font-size:8.5px;opacity:.8;margin-bottom:5px}
+.r-periodo-badge{
+  background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);
+  padding:4px 12px;border-radius:12px;font-size:9px;font-weight:600;letter-spacing:.04em;
+  display:inline-block;
+}
+
+/* DATOS EMPLEADO */
+.r-emp-grid{
+  display:grid;grid-template-columns:repeat(9,1fr);
+  background:#f8f9fc;border-bottom:2px solid #e8eaf6;
+  position:relative;z-index:1;
+}
+.r-emp-block{padding:6px 8px;border-right:1px solid #e3e5ef}
+.r-emp-block:last-child{border-right:none}
+.r-emp-block-wide{grid-column:span 2}
+.r-emp-label{font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:#7986cb;font-weight:700;margin-bottom:2px}
+.r-emp-valor{font-size:9.5px;font-weight:600;color:#1a237e}
+.r-emp-nombre{font-size:10px}
+
+/* TABLA CONCEPTOS */
+.r-tabla-pro{
+  width:100%;border-collapse:collapse;position:relative;z-index:1;
+  font-size:10px;
+}
+.r-tabla-pro thead tr{background:#1a237e}
+.r-tabla-pro thead th{
+  color:#fff;padding:5px 7px;font-size:9px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;border:none;
+}
+.r-tabla-pro tbody tr{border-bottom:1px solid #eef0f8;transition:background .1s}
+.r-tabla-pro tbody tr:nth-child(even){background:#fafbff}
+.r-tabla-pro tbody tr:hover{background:#f0f2fb}
+.r-sub{background:#fafafa!important}
+.r-sub-txt{color:#5c6bc0;font-style:italic;padding-left:14px!important}
+.r-desc-row{background:#fff9f9!important}
+.r-desc-row td{color:#c62828}
+.r-sep-row td{height:4px;background:linear-gradient(90deg,#e8eaf6,#fff);padding:0}
+
+.r-cod{width:32px;padding:4px 6px;font-family:'Courier New',monospace;color:#5c6bc0;font-size:9px}
+.r-concepto{padding:4px 7px;max-width:200px;font-size:10px}
+.r-uni{width:40px;padding:4px 6px;text-align:center;color:#78909c;font-size:9px}
+.r-num{text-align:right;padding:4px 8px;font-family:'Courier New',monospace;white-space:nowrap;font-size:10px}
+.r-hab{color:#1b5e20;font-weight:500}
+.r-desc{color:#b71c1c;font-weight:500}
+.r-nr{color:#0d47a1;font-weight:500}
+.r-hab-h{color:#a5d6a7}
+.r-desc-h{color:#ef9a9a}
+.r-nr-h{color:#90caf9}
+
+/* TOTALES */
+.r-totales-row{background:linear-gradient(135deg,#1a237e,#283593)!important;border:none}
+.r-totales-label{padding:6px 8px;color:#fff;font-weight:700;font-size:9px;letter-spacing:.05em}
+.r-tot-hab,.r-tot-desc,.r-tot-nr{padding:6px 8px;font-family:'Courier New',monospace;font-size:11px;font-weight:700}
+.r-tot-hab{color:#a5d6a7}
+.r-tot-desc{color:#ef9a9a}
+.r-tot-nr{color:#90caf9}
+
+/* FOOTER */
+.r-footer{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  padding:10px 16px 10px 20px;background:#f8f9fc;border-top:1px solid #e8eaf6;
+  position:relative;z-index:1;
+}
+.r-son-pesos{font-size:9px;color:#37474f;margin-bottom:4px}
+.r-son-pesos em{font-style:italic;color:#1a237e;font-weight:600}
+.r-footer-datos{font-size:8.5px;color:#78909c;margin-bottom:2px}
+.r-sep-dot{margin:0 4px;color:#ccc}
+.r-lct{font-size:8px;color:#b0bec5;font-style:italic}
+.r-footer-neto{
+  background:linear-gradient(135deg,#1b5e20,#2e7d32);
+  color:#fff;padding:10px 16px;border-radius:4px;text-align:center;
+  min-width:110px;box-shadow:0 3px 12px rgba(27,94,32,.3);
+}
+.r-neto-label{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;opacity:.85;margin-bottom:4px;font-weight:600}
+.r-neto-val{font-size:18px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.03em}
+
+/* FIRMAS */
+.r-firmas{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;
+  border-top:2px solid #e8eaf6;position:relative;z-index:1;
+}
+.r-firma-box{padding:14px 16px 8px;border-right:1px solid #e8eaf6}
+.r-firma-box:last-child{border-right:none}
+.r-firma-line{border-bottom:1px solid #1a237e;margin-bottom:5px;height:20px}
+.r-firma-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.08em;color:#5c6bc0;font-weight:700}
+.r-firma-sub{font-size:8.5px;color:#90a4ae;margin-top:2px}
+
+/* PRINT */
+@media print{
+  .topbar,.sidebar,.sgrid,div[style*="display:flex;align-items:center;gap:10px"]{display:none!important}
+  .layout{display:block}
+  .main{overflow:visible;padding:4mm}
+  .recibos-wrap{display:block;gap:0}
+  .recibo-pro{box-shadow:none;page-break-after:always;margin-bottom:0;border:none}
+  .recibo-pro::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .r-header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}
+}
+
+
+/* ══════════════════════════════════════════
+   RECIBO ESTILO ORIGINAL — austero, fiel al PDF
+   ══════════════════════════════════════════ */
+
+.recibos-wrap-orig {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 8px;
+}
+
+.recibo-orig {
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  border: 1px solid #999;
+  padding: 12px 16px;
+  position: relative;
+  max-width: 900px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.35);
+}
+
+/* LABEL ORIGINAL / DUPLICADO */
+.ro-copy-label {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  font-size: 9px;
+  font-weight: bold;
+  color: #555;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border: 1px solid #999;
+  padding: 1px 7px;
+}
+
+/* ENCABEZADO */
+.ro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 2px solid #000;
+  padding-bottom: 8px;
+  margin-bottom: 6px;
+}
+.ro-empresa { font-size: 9px; color: #666; }
+.ro-empresa-val { font-size: 13px; font-weight: bold; margin: 2px 0; }
+.ro-cuit-dom { font-size: 9px; color: #333; }
+.ro-header-der { text-align: right; }
+.ro-titulo-recibo { font-size: 13px; font-weight: bold; margin-bottom: 3px; }
+.ro-empleador-nombre { font-size: 10px; font-weight: bold; }
+.ro-empleador-dom { font-size: 9px; color: #555; }
+.ro-periodo {
+  font-size: 10px;
+  margin-top: 5px;
+  background: #000;
+  color: #fff;
+  padding: 2px 8px;
+  display: inline-block;
+}
+
+/* TABLA DATOS EMPLEADO */
+.ro-emp-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 6px;
+  font-size: 9.5px;
+}
+.ro-emp-hdr th {
+  background: #e8e8e8;
+  border: 1px solid #999;
+  padding: 3px 6px;
+  font-weight: bold;
+  text-align: left;
+  font-size: 9px;
+}
+.ro-emp-val td {
+  border: 1px solid #999;
+  padding: 3px 6px;
+  font-size: 10px;
+}
+
+/* TABLA CONCEPTOS */
+.ro-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  margin-bottom: 0;
+}
+.ro-tabla thead tr {
+  background: #d8d8d8;
+}
+.ro-tabla thead th {
+  border: 1px solid #999;
+  padding: 4px 7px;
+  font-size: 9px;
+  font-weight: bold;
+  text-align: left;
+}
+.ro-tabla tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+.ro-tabla tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+.ro-tabla tbody td {
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  padding: 2.5px 7px;
+}
+
+/* Columnas tabla conceptos */
+.rc-concepto { width: 38%; text-align: left; }
+.rc-uni { width: 9%; text-align: center; color: #333; }
+.rc-base { width: 17%; text-align: right; color: #333; }
+.rc-hab { width: 18%; text-align: right; font-weight: 500; }
+.rc-desc { width: 18%; text-align: right; font-weight: 500; }
+
+/* TOTALES */
+.ro-totales {
+  background: #e8e8e8 !important;
+  font-weight: bold;
+  border-top: 2px solid #000;
+}
+.ro-totales td {
+  border: 1px solid #999 !important;
+  padding: 4px 7px !important;
+  font-size: 10.5px;
+}
+.ro-tot-val { text-align: right; }
+
+/* NETO */
+.ro-neto-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid #000;
+  padding: 7px 12px;
+  margin-top: 6px;
+  background: #f5f5f5;
+}
+.ro-neto-label {
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 3px;
+}
+.ro-neto-letras {
+  font-size: 9px;
+  font-style: italic;
+  color: #333;
+}
+.ro-neto-val {
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  letter-spacing: .03em;
+}
+
+/* DATOS COBRO */
+.ro-cobro {
+  border: 1px solid #999;
+  padding: 6px 10px;
+  margin-top: 6px;
+  font-size: 9.5px;
+}
+.ro-cobro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.ro-cobro-lbl { font-size: 8.5px; color: #666; margin-bottom: 2px; }
+.ro-cobro-val { font-size: 10px; font-weight: 500; }
+.ro-cobro-os {
+  font-size: 9px;
+  color: #555;
+  border-top: 1px solid #ddd;
+  padding-top: 4px;
+}
+
+/* LEGAL */
+.ro-legal {
+  font-size: 8.5px;
+  color: #555;
+  font-style: italic;
+  margin-top: 5px;
+  border-top: 1px solid #ddd;
+  padding-top: 4px;
+  display: flex;
+  gap: 16px;
+}
+
+/* FIRMAS */
+.ro-firmas {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 4px;
+}
+.ro-firma-linea {
+  border-bottom: 1px solid #000;
+  height: 28px;
+  margin-bottom: 4px;
+}
+.ro-firma-lbl {
+  font-size: 8.5px;
+  font-weight: bold;
+  letter-spacing: .06em;
+  text-align: center;
+}
+
+/* PRINT — un recibo por hoja */
+@media print {
+  .topbar, .sidebar, .sgrid,
+  div[style*="display:flex;align-items:center;gap:10px"] { display: none !important; }
+  .layout { display: block; }
+  .main { overflow: visible; padding: 4mm; background: #fff; }
+  .recibos-wrap-orig { gap: 0; }
+  .recibo-orig {
+    box-shadow: none;
+    border: 1px solid #999;
+    page-break-after: always;
+    margin-bottom: 0;
+    max-width: 100%;
+  }
+  .recibo-orig:last-child { page-break-after: auto; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- Inputs file fuera de modales -->
+<input type="file" id="inp-pdf-recibo" accept=".pdf" style="display:none;position:fixed;top:-9999px" onchange="cargarDesdePDF(event)">
+<input type="file" id="inp-excel-nomina" accept=".xlsx,.xls,.csv" style="display:none;position:fixed;top:-9999px" onchange="importarExcel(event)">
+<input type="file" id="inp-bk" accept=".json" style="display:none" onchange="importBackup(event)">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="t-logo">SUELDOS·CCT</div>
+  <div class="t-sep">|</div>
+  <select class="t-esel" id="tp-esel" onchange="cambiarEmpresa()"><option value="">Sin empresa</option></select>
+  <button class="t-btn" onclick="abrirMo('mo-empresa');moEmpresa(null)">＋ Empresa</button>
+  <div class="t-right">
+    <button class="t-btn" id="btn-vcto" onclick="showTab('t-vcto')" style="display:none">⚠ Vencimientos</button>
+    <button class="t-btn" onclick="exportBackup()">💾 Backup</button>
+    <button class="t-btn" onclick="document.getElementById('inp-bk').click()">📂 Restaurar</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+<div class="sidebar">
+  <div class="stabs">
+    <button class="stab on" onclick="showTab('t-liq')">Liquidar</button>
+    <button class="stab" onclick="showTab('t-multi')">Multi</button>
+    <button class="stab" onclick="showTab('t-hist')">Historial</button>
+    <button class="stab" onclick="showTab('t-res')">Resumen</button>
+    <button class="stab" onclick="showTab('t-emps')">Empleados</button>
+    <button class="stab" onclick="showTab('t-per')">Períodos</button>
+    <button class="stab" onclick="showTab('t-vcto')">Venc.</button>
+    <button class="stab" onclick="showTab('t-emp2')">Empresas</button>
+  </div>
+  <div class="sbody">
+
+    <!-- LIQUIDAR INDIVIDUAL -->
+    <div id="t-liq">
+      <div class="shdr">Liquidación individual</div>
+      <div class="fg">
+        <label class="fl">Empleado</label>
+        <select id="sel-emp" class="fi"><option value="">— Seleccioná —</option></select>
+      </div>
+      <div class="fg">
+        <label class="fl">Período (AAAAMM)</label>
+        <input id="inp-per" class="fi" type="text" value="202604" maxlength="6" oninput="onPerChange()">
+        <div id="per-aviso" class="aviso" style="margin-top:5px;display:none"></div>
+      </div>
+      <div class="fg fr2">
+        <div><label class="fl">Tipo</label>
+          <select id="inp-tipo" class="fi"><option value="M">Mensual</option><option value="Q">Quincenal</option></select>
+        </div>
+        <div><label class="fl">N° liq.</label><input id="inp-nroliq" class="fi" type="number" value="1" min="1"></div>
+      </div>
+      <div class="fg">
+        <label class="fl">Fecha de pago (AAAAMMDD)</label>
+        <input id="inp-fpago" class="fi" type="text" value="20260410">
+      </div>
+      <div class="fg">
+        <label class="fl">Presentismo</label>
+        <select id="inp-pres" class="fi">
+          <option value="1">Con presentismo</option>
+          <option value="0">Sin presentismo</option>
+        </select>
+      </div>
+      <!-- Validaciones en tiempo real -->
+      <div id="val-panel" style="padding:6px 13px 8px;display:none">
+        <div id="val-lista" style="display:grid;gap:3px"></div>
+      </div>
+      <div class="brow">
+        <button class="btn bp bw" onclick="liquidar()">⚡ LIQUIDAR</button>
+      </div>
+      <div class="shdr">Exportar</div>
+      <div class="brow">
+        <button class="btn bg bw" onclick="generarLSD()">📄 TXT LSD-ARCA</button>
+        <button class="btn bh bw" onclick="generarConceptosTxt()">📃 TXT Conceptos</button>
+        <button class="btn bh bw" onclick="generarPDFReal()">📑 PDF Recibos</button>
+        <button class="btn bh bw" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>
+
+    <!-- LIQUIDACIÓN MÚLTIPLE -->
+    <div id="t-multi" style="display:none">
+      <div class="shdr">Liquidación masiva</div>
+      <div class="fg">
+        <label class="fl">Período (AAAAMM)</label>
+        <input id="multi-per" class="fi" type="text" value="202604" maxlength="6">
+      </div>
+      <div class="fg">
+        <label class="fl">Fecha de pago (AAAAMMDD)</label>
+        <input id="multi-fpago" class="fi" type="text" value="20260410">
+      </div>
+      <div class="fg">
+        <label class="fl">Presentismo</label>
+        <select id="multi-pres" class="fi">
+          <option value="1">Con presentismo</option>
+          <option value="0">Sin presentismo</option>
+        </select>
+      </div>
+      <div style="padding:8px 13px;border-bottom:1px solid var(--brd)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label class="fl" style="margin:0">Empleados a liquidar</label>
+          <button class="edit-btn" onclick="toggleTodosMulti()">Todos/Ninguno</button>
+        </div>
+        <div id="multi-emps" style="max-height:200px;overflow-y:auto;border:1px solid var(--brd);border-radius:var(--r)"></div>
+      </div>
+      <div class="brow">
+        <button class="btn bp bw" onclick="liquidarMultiple()">⚡ LIQUIDAR TODOS</button>
+      </div>
+      <div id="multi-prog" style="padding:0 13px 8px;display:none">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--txt2)" id="multi-prog-txt"></div>
+        <div class="prog-bar"><div class="prog-fill" id="multi-prog-fill" style="width:0%"></div></div>
+      </div>
+      <div class="shdr">Exportar masivo</div>
+      <div class="brow">
+        <button class="btn bg bw" onclick="generarLSDMultiple()">📄 LSD-ARCA (todos)</button>
+        <button class="btn bh bw" onclick="generarPDFMultiple()">📑 PDFs (todos)</button>
+      </div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div id="t-hist" style="display:none">
+      <div class="shdr">Historial de liquidaciones</div>
+      <div style="padding:6px 13px;display:flex;gap:6px">
+        <input id="hist-filtro" class="fi" placeholder="Buscar empleado..." style="font-size:10px" oninput="renderHistorial()">
+        <button class="btn br" style="padding:4px 8px;font-size:9px" onclick="limpiarHistorial()">Limpiar</button>
+      </div>
+      <div id="lista-historial"></div>
+    </div>
+
+    <!-- RESUMEN EMPRESA -->
+    <div id="t-res" style="display:none">
+      <div class="shdr">Resumen empresa</div>
+      <div style="padding:8px 13px">
+        <label class="fl">Período</label>
+        <input id="res-per" class="fi" type="text" placeholder="202604" maxlength="6" oninput="renderResumen()">
+      </div>
+      <div id="res-panel"></div>
+    </div>
+
+    <!-- EMPLEADOS -->
+    <div id="t-emps" style="display:none">
+      <div class="shdr">Nómina</div>
+      <div style="padding:8px 13px;display:flex;flex-direction:column;gap:5px">
+        <button class="btn bh bw" onclick="abrirMo('mo-empleado');moEmpleado(null)">＋ Nuevo empleado</button>
+        <button class="btn bh bw" onclick="document.getElementById('inp-excel-nomina').click()">📥 Importar desde Excel/CSV</button>
+      </div>
+      <ul id="lista-emps" style="list-style:none"></ul>
+    </div>
+
+    <!-- PERÍODOS -->
+    <div id="t-per" style="display:none">
+      <div class="shdr">Períodos configurados</div>
+      <div style="padding:8px 13px;display:flex;flex-direction:column;gap:5px">
+        <button class="btn bc bw" onclick="abrirMo('mo-periodo');moPeriodo(null)">＋ Nuevo período</button>
+        <button class="btn bh bw" onclick="copiarUltimoPeriodo()">📋 Copiar último período</button>
+      </div>
+      <div id="lista-periodos"></div>
+    </div>
+
+    <!-- VENCIMIENTOS -->
+    <div id="t-vcto" style="display:none">
+      <div class="shdr">Control de vencimientos</div>
+      <div id="lista-vctos"></div>
+    </div>
+
+    <!-- EMPRESAS -->
+    <div id="t-emp2" style="display:none">
+      <div class="shdr">Clientes / Empresas</div>
+      <div id="lista-empresas"></div>
+      <div style="padding:8px 13px">
+        <button class="btn bh bw" onclick="abrirMo('mo-empresa');moEmpresa(null)">＋ Nueva empresa</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+  <div class="empty">
+    <div class="empty-ico">📋</div>
+    <div>Seleccioná empresa → empleado → liquidar</div>
+    <div style="font-size:10px;margin-top:4px">O usá "Multi" para liquidar todos los empleados a la vez</div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════ MODALES ═══════ -->
+
+<!-- EMPRESA -->
+<div class="mo" id="mo-empresa">
+  <div class="mo-box">
+    <div class="mo-hdr"><div class="mo-title" id="moe-title">Nueva empresa</div><button class="mo-x" onclick="cerrarMo('mo-empresa')">×</button></div>
+    <div class="mo-body">
+      <input type="hidden" id="moe-id">
+      <div><label class="fl">Razón social</label><input id="moe-raz" class="fi"></div>
+      <div><label class="fl">CUIT (sin guiones)</label><input id="moe-cuit" class="fi"></div>
+      <div><label class="fl">Domicilio</label><input id="moe-dom" class="fi"></div>
+      <div><label class="fl">Localidad de pago</label><input id="moe-loc" class="fi" value="Rosario"></div>
+      <div><label class="fl">Emoji / ícono</label><input id="moe-ico" class="fi" value="🏢" maxlength="4"></div>
+    </div>
+    <div class="mo-foot">
+      <button class="btn br" id="moe-del" style="margin-right:auto;display:none" onclick="eliminarEmpresa()">Eliminar</button>
+      <button class="btn bh" onclick="cerrarMo('mo-empresa')">Cancelar</button>
+      <button class="btn bp" onclick="guardarEmpresa()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EMPLEADO -->
+<div class="mo" id="mo-empleado">
+  <div class="mo-box wide">
+    <div class="mo-hdr"><div class="mo-title" id="moemp-title">Nuevo empleado</div><button class="mo-x" onclick="cerrarMo('mo-empleado')">×</button></div>
+    <div class="mo-body">
+      <input type="hidden" id="moemp-idx">
+      <input type="hidden" id="moemp-empresa-orig">
+      <div>
+        <label class="fl">Empresa a la que pertenece</label>
+        <select id="moemp-empresa" class="fi" style="border-color:var(--acc2)"></select>
+      </div>
+      <div class="fr2">
+        <div><label class="fl">Legajo</label><input id="moemp-leg" class="fi" placeholder="00000001"></div>
+        <div><label class="fl">Fecha ingreso (AAAAMMDD)</label><input id="moemp-ingr" class="fi"></div>
+      </div>
+      <div>
+        <label class="fl">Apellido y nombre</label>
+        <input id="moemp-nom" class="fi" placeholder="MARTINEZ EVELYN MICAELA">
+        <div class="ferr" id="err-nom">El nombre es obligatorio</div>
+      </div>
+      <div>
+        <label class="fl">CUIL (sin guiones, 11 dígitos)</label>
+        <input id="moemp-cuil" class="fi" placeholder="27366783984" oninput="validarCUIL()">
+        <div class="ferr" id="err-cuil">CUIL inválido — debe tener 11 dígitos numéricos</div>
+      </div>
+      <div><label class="fl">Categoría</label><input id="moemp-cat" class="fi" placeholder="Vendedor B"></div>
+      <div class="fr2">
+        <div><label class="fl">Años antigüedad</label><input id="moemp-ant" class="fi" type="number" value="0" min="0"></div>
+        <div>
+          <label class="fl">CBU (22 dígitos)</label>
+          <input id="moemp-cbu" class="fi" oninput="validarCBU()">
+          <div class="ferr" id="err-cbu">CBU debe tener 22 dígitos</div>
+        </div>
+      </div>
+      <div class="fr2">
+        <div><label class="fl">Banco depósito</label><input id="moemp-banco" class="fi"></div>
+        <div><label class="fl">Forma de pago</label>
+          <select id="moemp-fpago" class="fi">
+            <option value="3">Acreditación (CBU)</option>
+            <option value="1">Efectivo</option>
+            <option value="2">Cheque</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr2">
+        <div><label class="fl">Sector</label><input id="moemp-sect" class="fi"></div>
+        <div><label class="fl">Tarea</label><input id="moemp-tar" class="fi"></div>
+      </div>
+      <div class="fr2">
+        <div><label class="fl">Período SUSS (AAAAMM)</label><input id="moemp-psuss" class="fi"></div>
+        <div><label class="fl">Fecha SUSS (AAAAMMDD)</label><input id="moemp-fsuss" class="fi"></div>
+      </div>
+      <div class="fr2">
+        <div><label class="fl">Cód. OS AFIP</label><input id="moemp-oscod" class="fi" value="126205"></div>
+        <div><label class="fl">Tipo jornada</label><input id="moemp-jor" class="fi" value="completa (48hs)"></div>
+      </div>
+    </div>
+    <div class="mo-foot">
+      <button class="btn br" id="moemp-del" style="margin-right:auto;display:none" onclick="eliminarEmpleado()">Eliminar</button>
+      <button class="btn bh" onclick="cerrarMo('mo-empleado')">Cancelar</button>
+      <button class="btn bp" onclick="guardarEmpleado()">Guardar empleado</button>
+    </div>
+  </div>
+</div>
+
+<!-- PERÍODO -->
+<div class="mo" id="mo-periodo">
+  <div class="mo-box xwide">
+    <div class="mo-hdr">
+      <div class="mo-title" id="mop-title">Nuevo período</div>
+      <button class="mo-x" onclick="cerrarMo('mo-periodo')">×</button>
+    </div>
+    <div class="mo-body">
+      <input type="hidden" id="mop-key">
+      <div class="fr2">
+        <div><label class="fl">Período (AAAAMM)</label><input id="mop-per" class="fi" placeholder="202604" maxlength="6"></div>
+        <div><label class="fl">Descripción</label><input id="mop-desc" class="fi" placeholder="Abr-Jun 2026"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start">
+        <!-- BIBLIOTECA -->
+        <div style="background:var(--surf3);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden">
+          <div style="padding:8px 12px;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center">
+            <div style="font-family:var(--mono);font-size:10px;color:var(--txt2)">📚 Biblioteca ARCA</div>
+            <input type="text" id="bib-search" class="fi" placeholder="Buscar..." style="width:110px;padding:3px 7px;font-size:10px" oninput="renderBiblioteca()">
+          </div>
+          <div id="bib-lista" style="max-height:380px;overflow-y:auto;padding:8px 10px"></div>
+          <div style="padding:8px 12px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:5px">
+            <button class="btn bc bw" onclick="agregarSeleccionados()" style="font-size:9px;padding:5px">＋ Agregar seleccionados</button>
+            <button class="btn by bw" onclick="abrirNRLibre()" style="font-size:9px;padding:5px">✚ NR libre (nombre personalizado)</button>
+          </div>
+        </div>
+        <!-- CONCEPTOS DEL PERÍODO -->
+        <div style="background:var(--surf3);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden">
+          <div style="padding:8px 12px;border-bottom:1px solid var(--brd);font-family:var(--mono);font-size:10px;color:var(--txt2)">
+            Conceptos del período <span id="mop-conc-count" style="color:var(--acc2)"></span>
+          </div>
+          <div id="mop-conceptos" style="max-height:380px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <div class="info-box">💡 Hacé clic en un concepto para editar monto y retenciones. ↑↓ para reordenar.</div>
+    </div>
+    <div class="mo-foot">
+      <button class="btn br" id="mop-del" style="margin-right:auto;display:none" onclick="eliminarPeriodo()">Eliminar</button>
+      <button class="btn by" onclick="triggerJSONInput()" title="Importar conceptos desde JSON generado por Claude">📂 Importar JSON</button>
+      <input type="file" id="inp-json-periodo" accept=".json" style="display:none;position:fixed;top:-9999px" onchange="importarJSONPeriodo(event)">
+      <button class="btn bh" onclick="cerrarMo('mo-periodo')">Cancelar</button>
+      <button class="btn bp" onclick="guardarPeriodo()">Guardar período</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDITAR CONCEPTO -->
+<div class="mo" id="mo-conc">
+  <div class="mo-box wide">
+    <div class="mo-hdr"><div class="mo-title" id="moc-title">Configurar concepto</div><button class="mo-x" onclick="cerrarMo('mo-conc')">×</button></div>
+    <div class="mo-body">
+      <input type="hidden" id="moc-idx">
+      <div style="background:var(--surf3);border:1px solid var(--brd);border-radius:var(--r);padding:10px 12px">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--txt)" id="moc-info-nombre"></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--txt3);margin-top:3px" id="moc-info-cod"></div>
+      </div>
+      <!-- Nombre editable en recibo -->
+      <div><label class="fl">Nombre en el recibo (editá si el acta usa otro texto)</label>
+        <input id="moc-label" class="fi" placeholder="Dejar vacío para usar el nombre original"></div>
+      <div id="moc-monto-section">
+        <div class="fr2">
+          <div><label class="fl">Monto base ($)</label><input id="moc-monto" class="fi" type="number" placeholder="0" step="0.01" min="0"></div>
+          <div><label class="fl">Unidades en recibo</label><input id="moc-unidades" class="fi" placeholder="30"></div>
+        </div>
+        <div class="fr2" style="margin-top:7px">
+          <label class="fi" style="display:flex;align-items:center;gap:7px;padding:6px 9px;cursor:pointer">
+            <input type="checkbox" id="moc-antig" style="accent-color:var(--acc2);width:14px;height:14px">
+            <span style="font-size:11px">Aplica antigüedad</span>
+          </label>
+          <label class="fi" style="display:flex;align-items:center;gap:7px;padding:6px 9px;cursor:pointer">
+            <input type="checkbox" id="moc-pres" style="accent-color:var(--acc2);width:14px;height:14px">
+            <span style="font-size:11px">Aplica presentismo</span>
+          </label>
+        </div>
+      </div>
+      <div id="moc-desc-section" style="display:none">
+        <div class="fr2">
+          <div><label class="fl">Porcentaje (%)</label><input id="moc-pct" class="fi" type="number" placeholder="0" step="0.01"></div>
+          <div><label class="fl">Monto fijo ($)</label><input id="moc-fijo" class="fi" type="number" placeholder="0" step="0.01"></div>
+        </div>
+      </div>
+      <div id="moc-ret-section" class="ret-section">
+        <div class="ret-title">Retenciones sobre este concepto</div>
+        <div class="ret-grid">
+          <label class="ret-item"><input type="checkbox" id="ret-jub"><span>Jubilación SIPA (11%)</span></label>
+          <label class="ret-item"><input type="checkbox" id="ret-lei"><span>Ley 19032 INSSJP (3%)</span></label>
+          <label class="ret-item"><input type="checkbox" id="ret-os"><span>Obra Social (3%)</span></label>
+          <label class="ret-item"><input type="checkbox" id="ret-sind"><span>Sindicato (2%)</span></label>
+          <label class="ret-item"><input type="checkbox" id="ret-faec"><span>FAECyS (0,5%)</span></label>
+          <label class="ret-item"><input type="checkbox" id="ret-osecac"><span>OSECAC fijo $100</span></label>
+        </div>
+        <div style="margin-top:7px;font-family:var(--mono);font-size:9px;color:var(--txt3)">NR típico 2025-2026: OS + Sindicato + FAECyS ✓ · Jubilación y Ley 19032 ✗</div>
+      </div>
+    </div>
+    <div class="mo-foot">
+      <button class="btn br" style="margin-right:auto" onclick="quitarConcepto()">Quitar del período</button>
+      <button class="btn bh" onclick="cerrarMo('mo-conc')">Cancelar</button>
+      <button class="btn bp" onclick="guardarConcepto()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NR LIBRE -->
+<div class="mo" id="mo-nr-libre">
+  <div class="mo-box">
+    <div class="mo-hdr"><div class="mo-title">✚ No Remunerativo libre</div><button class="mo-x" onclick="cerrarMo('mo-nr-libre')">×</button></div>
+    <div class="mo-body">
+      <div class="info-box">Usá esto para NR de nuevos acuerdos. Código ARCA: 551000 (NR especiales CCT).</div>
+      <div><label class="fl">Nombre exacto del concepto (tal como dice el acta)</label>
+        <input id="nrl-nombre" class="fi" placeholder="ej: Anticipo No Remunerativo-Acuerdo Jul 2026"></div>
+      <div><label class="fl">Código contribuyente (lo asignás vos)</label>
+        <input id="nrl-cod" class="fi" placeholder="0000001006" maxlength="10"></div>
+      <div class="fr2">
+        <div><label class="fl">Monto base ($)</label><input id="nrl-monto" class="fi" type="number" placeholder="0" step="1"></div>
+        <div><label class="fl">Unidades</label><input id="nrl-unidades" class="fi" placeholder="30" value="30"></div>
+      </div>
+      <div class="fr2">
+        <label class="fi" style="display:flex;align-items:center;gap:7px;padding:6px 9px;cursor:pointer">
+          <input type="checkbox" id="nrl-antig" checked style="accent-color:var(--acc2);width:14px;height:14px">
+          <span style="font-size:11px">Aplica antigüedad</span>
+        </label>
+        <label class="fi" style="display:flex;align-items:center;gap:7px;padding:6px 9px;cursor:pointer">
+          <input type="checkbox" id="nrl-pres" checked style="accent-color:var(--acc2);width:14px;height:14px">
+          <span style="font-size:11px">Aplica presentismo</span>
+        </label>
+      </div>
+      <div class="ret-section">
+        <div class="ret-title">Retenciones sobre este NR</div>
+        <div class="ret-grid">
+          <label class="ret-item"><input type="checkbox" id="nrl-jub"><span>Jubilación SIPA</span></label>
+          <label class="ret-item"><input type="checkbox" id="nrl-lei"><span>Ley 19032 INSSJP</span></label>
+          <label class="ret-item"><input type="checkbox" id="nrl-os" checked><span>Obra Social</span></label>
+          <label class="ret-item"><input type="checkbox" id="nrl-sind" checked><span>Sindicato</span></label>
+          <label class="ret-item"><input type="checkbox" id="nrl-faec" checked><span>FAECyS</span></label>
+          <label class="ret-item"><input type="checkbox" id="nrl-osecac"><span>OSECAC fijo</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="mo-foot">
+      <button class="btn bh" onclick="cerrarMo('mo-nr-libre')">Cancelar</button>
+      <button class="btn by" onclick="confirmarNRLibre()">Agregar al período</button>
+    </div>
+  </div>
+</div>
+
+<!-- PDF STATUS -->
+<div class="mo" id="mo-pdf-status">
+  <div class="mo-box">
+    <div class="mo-hdr"><div class="mo-title">📄 Cargando desde PDF...</div><button class="mo-x" onclick="cerrarMo('mo-pdf-status')">×</button></div>
+    <div class="mo-body">
+      <div id="pdf-status-msg" style="font-family:var(--mono);font-size:11px;color:var(--txt2);line-height:1.7"></div>
+      <div id="pdf-preview" style="margin-top:8px"></div>
+    </div>
+    <div class="mo-foot">
+      <button class="btn bh" onclick="cerrarMo('mo-pdf-status')">Cerrar</button>
+      <button class="btn bp" id="pdf-aplicar-btn" style="display:none" onclick="aplicarDesdeAPI()">✓ Aplicar al período</button>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORIAL DETALLE -->
+<div class="mo" id="mo-hist-det">
+  <div class="mo-box wide">
+    <div class="mo-hdr"><div class="mo-title" id="mo-hist-title">Detalle liquidación</div><button class="mo-x" onclick="cerrarMo('mo-hist-det')">×</button></div>
+    <div class="mo-body" id="mo-hist-body"></div>
+    <div class="mo-foot">
+      <button class="btn bh" onclick="cerrarMo('mo-hist-det')">Cerrar</button>
+      <button class="btn bg" onclick="reimprimirDesdeHistorial()">🖨 Reimprimir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// BIBLIOTECA COMPLETA ARCA — CCT 130/75
+// ═══════════════════════════════════════════════════════
+const BIBLIOTECA = [
+  { grupo:'Remunerativos básicos', items:[
+    { codAfip:'110000', codContr:'0000000070', nombre:'Sueldo Básico', tipo:'REM', unidades:'30', defAntig:true,  defPres:true,  defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:true},  defPct:0, defFijo:0 },
+    { codAfip:'160001', codContr:'0000000100', nombre:'Antigüedad',    tipo:'REM', unidades:'',   defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'170001', codContr:'0000000200', nombre:'Presentismo',   tipo:'REM', unidades:'8,33', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'SAC', items:[
+    { codAfip:'120000', codContr:'0000000569', nombre:'SAC',                     tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'120003', codContr:'0000000570', nombre:'SAC Proporcional',         tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'560002', codContr:'0000000263', nombre:'SAC PPC y CCT Especiales', tipo:'NR',  unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'Vacaciones y licencias', items:[
+    { codAfip:'151000', codContr:'0000000550', nombre:'Vacaciones',           tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'151000', codContr:'0000000551', nombre:'Adelanto de Vacaciones',tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'151000', codContr:'0000000552', nombre:'Vacaciones no gozadas', tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'Horas extras y feriados', items:[
+    { codAfip:'130000', codContr:'0000000300', nombre:'Horas Extras 50%',          tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'130001', codContr:'0000000301', nombre:'Horas Extras 100%',         tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'130000', codContr:'0000000310', nombre:'Feriados Trabajados (50%)', tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'130001', codContr:'0000000311', nombre:'Feriados Trabajados (100%)',tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'Otros remunerativos', items:[
+    { codAfip:'110000', codContr:'0000000400', nombre:'Comisiones',           tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'110000', codContr:'0000000410', nombre:'Premio / Bonificación', tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'110000', codContr:'0000000420', nombre:'Adicional por título',  tipo:'REM', unidades:'', defAntig:false, defPres:false, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'No Remunerativos — Acuerdo Ene-Mar 2026', items:[
+    { codAfip:'551000', codContr:'0000000633', nombre:'Incremento No Rem. - nuevo Acuerdo', tipo:'NR', unidades:'30', defAntig:true, defPres:true, defRet:{jub:false,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'551000', codContr:'0000000693', nombre:'Suma no Rem',                         tipo:'NR', unidades:'30', defAntig:true, defPres:true, defRet:{jub:false,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'No Remunerativos — Acuerdo Abril 2026', items:[
+    { codAfip:'551000', codContr:'0000001001', nombre:'Pago anticipado a cuenta del Acuerdo Colectivo Abril 2026', tipo:'REM', unidades:'30', defAntig:true, defPres:true, defRet:{jub:true,lei:true,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'551000', codContr:'0000001002', nombre:'Anticipo No Remunerativo-Acuerdo Abril 2026',               tipo:'NR',  unidades:'30', defAntig:true, defPres:true, defRet:{jub:false,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'551000', codContr:'0000001003', nombre:'Anticipo Recomposición No Remunerativo- Acuerdo Abril 2026',tipo:'NR',  unidades:'30', defAntig:true, defPres:true, defRet:{jub:false,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'No Remunerativos — Generales', items:[
+    { codAfip:'551000', codContr:'0000000646', nombre:'Suma No Remunerativa (genérica)', tipo:'NR', unidades:'30', defAntig:true, defPres:true, defRet:{jub:false,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'551000', codContr:'0000000650', nombre:'Antigüedad No Rem',               tipo:'NR', unidades:'',  defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'551000', codContr:'0000000700', nombre:'Presentismo No Rem',              tipo:'NR', unidades:'',  defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:true,sind:true,faec:true,osecac:false}, defPct:0, defFijo:0 },
+    { codAfip:'799999', codContr:'9999999999', nombre:'Redondeo',                        tipo:'NR', unidades:'',  defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:false,sind:false,faec:false,osecac:false}, defPct:0, defFijo:0 },
+  ]},
+  { grupo:'Descuentos — Aportes del trabajador', items:[
+    { codAfip:'810000', codContr:'0000000900', nombre:'Jubilación - Ley 24.241',         tipo:'DESC', unidades:'11,00', defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:false,sind:false,faec:false,osecac:false}, defPct:11,  defFijo:0   },
+    { codAfip:'810001', codContr:'0000000905', nombre:'Ley 19.032 - INSSJP',             tipo:'DESC', unidades:'3,00',  defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:false,sind:false,faec:false,osecac:false}, defPct:3,   defFijo:0   },
+    { codAfip:'810002', codContr:'0000000910', nombre:'Obra Social',                     tipo:'DESC', unidades:'3,00',  defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:false,sind:false,faec:false,osecac:false}, defPct:3,   defFijo:0   },
+    { codAfip:'810002', codContr:'0000000953', nombre:'Aporte Solidario OSECAC',         tipo:'DESC', unidades:'',      defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:false,sind:false,faec:false,osecac:false}, defPct:0,   defFijo:100 },
+    { codAfip:'810004', codContr:'0000000920', nombre:'Sindicato - Art. 100 CCT 130/75', tipo:'DESC', unidades:'2,00',  defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:false,sind:false,faec:false,osecac:false}, defPct:2,   defFijo:0   },
+    { codAfip:'810004', codContr:'0000000923', nombre:'FAECyS - Art. 100 CCT 130/75',    tipo:'DESC', unidades:'0,50',  defAntig:false, defPres:false, defRet:{jub:false,lei:false,os:false,sind:false,faec:false,osecac:false}, defPct:0.5, defFijo:0   },
+  ]},
+];
+const BIB_FLAT = BIBLIOTECA.flatMap(g => g.items.map(i => ({ ...i, grupo: g.grupo })));
+
+// ═══════════════════════════════════════════════════════
+// DB
+// ═══════════════════════════════════════════════════════
+let DB = {
+  version: 6,
+  empresas: [],
+  empresaActual: null,
+  periodos: {},
+  historial: [],   // [{id, fecha, empresa, empNombre, per, neto, totalRem, totalNR, totalDesc, liqData}]
+};
+
+let ultimaLiq = null;
+let ultimasLiqMulti = [];
+let concTmp = [];
+let periodoKey = null;
+let bibSel = new Set();
+let pdfDatosAPI = null;
+let historialDetIdx = null;
+
+// Períodos iniciales
+const mkConc = (bib, monto=0) => ({
+  codAfip:bib.codAfip, codContr:bib.codContr, nombre:bib.nombre, tipo:bib.tipo,
+  monto, unidades:bib.unidades, antig:bib.defAntig, pres:bib.defPres,
+  retJub:bib.defRet.jub, retLei:bib.defRet.lei, retOs:bib.defRet.os,
+  retSind:bib.defRet.sind, retFaec:bib.defRet.faec, retOsecac:bib.defRet.osecac,
+  pct:bib.defPct, fijo:bib.defFijo, label:'',
+});
+
+function crearPeriodoBase(codsYMontos) {
+  return codsYMontos.map(([cod, monto]) => {
+    const b = BIB_FLAT.find(x => x.codContr === cod);
+    return b ? mkConc(b, monto) : null;
+  }).filter(Boolean);
+}
+
+const DESC_BASE = [
+  ['0000000900',0],['0000000905',0],['0000000910',0],
+  ['0000000920',0],['0000000923',0],['0000000953',0],
+];
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+window.onload = () => {
+  cargarStorage();
+  renderEmpresasSel(); renderEmpresasList(); renderEmpleadosList();
+  renderPeriodos(); renderHistorial(); renderVencimientos();
+  onPerChange();
+  verificarVencimientos();
+};
+
+function cargarStorage() {
+  try {
+    const r = localStorage.getItem('sc_v6');
+    if (r) DB = { ...DB, ...JSON.parse(r) };
+  } catch(e) {}
+  if (!DB.historial) DB.historial = [];
+  if (!DB.periodos || !Object.keys(DB.periodos).length) {
+    DB.periodos = {
+      '202603': { desc:'Ene-Mar 2026', conceptos: crearPeriodoBase([['0000000070',1094044],['0000000633',60000],['0000000693',40000],...DESC_BASE]) },
+      '202604': { desc:'Abril 2026',   conceptos: crearPeriodoBase([['0000000070',1094044],['0000001001',23881],['0000001002',100000],['0000001003',20000],...DESC_BASE]) },
+    };
+  }
+}
+function guardarStorage() { localStorage.setItem('sc_v6', JSON.stringify(DB)); }
+
+function exportBackup() {
+  const b = new Blob([JSON.stringify({version:6, fecha:new Date().toISOString(), db:DB}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+  a.download = `backup_sueldos_v6_${new Date().toISOString().slice(0,10)}.json`; a.click();
+  toast('Backup descargado ✓');
+}
+function importBackup(ev) {
+  const f = ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const d = JSON.parse(e.target.result);
+      if (!d.db) { toast('Archivo inválido', true); return; }
+      DB = { ...DB, ...d.db };
+      if (!DB.historial) DB.historial = [];
+      guardarStorage();
+      renderEmpresasSel(); renderEmpresasList(); renderEmpleadosList();
+      renderPeriodos(); renderHistorial(); renderVencimientos(); onPerChange();
+      toast('Backup restaurado ✓');
+    } catch { toast('Error al leer el archivo', true); }
+    ev.target.value = '';
+  };
+  r.readAsText(f);
+}
+
+// ═══════════════════════════════════════════════════════
+// PERÍODO
+// ═══════════════════════════════════════════════════════
+function getPeriodo(per) {
+  if (DB.periodos[per]) return {key:per, p:DB.periodos[per], fallback:false};
+  const ks = Object.keys(DB.periodos).sort();
+  let m = null; for (const k of ks) { if (k<=per) m=k; }
+  if (m) return {key:m, p:DB.periodos[m], fallback:true};
+  if (ks.length) return {key:ks[0], p:DB.periodos[ks[0]], fallback:true};
+  return null;
+}
+
+function onPerChange() {
+  const per = document.getElementById('inp-per').value;
+  const av = document.getElementById('per-aviso');
+  if (per.length===6) {
+    const r = getPeriodo(per);
+    if (!r) { av.style.display='block'; av.textContent='⚠ Sin período. Crealo en la pestaña Períodos.'; }
+    else if (r.fallback) { av.style.display='block'; av.textContent=`⚠ Usando ${r.key} (${r.p.desc}) para ${per}.`; }
+    else av.style.display='none';
+  }
+  // Validaciones empleado
+  validarParaLiquidar();
+}
+
+// ═══════════════════════════════════════════════════════
+// VALIDACIONES
+// ═══════════════════════════════════════════════════════
+function validarCUIL() {
+  const v = document.getElementById('moemp-cuil').value.replace(/\D/g,'');
+  const err = document.getElementById('err-cuil');
+  const fi = document.getElementById('moemp-cuil');
+  const ok = v.length === 11;
+  err.style.display = ok ? 'none' : 'block';
+  fi.classList.toggle('err', !ok && v.length > 0);
+}
+function validarCBU() {
+  const v = document.getElementById('moemp-cbu').value.replace(/\D/g,'');
+  const err = document.getElementById('err-cbu');
+  const fi = document.getElementById('moemp-cbu');
+  const ok = v.length === 0 || v.length === 22;
+  err.style.display = ok ? 'none' : 'block';
+  fi.classList.toggle('err', !ok);
+}
+
+function validarParaLiquidar() {
+  const panel = document.getElementById('val-panel');
+  const lista = document.getElementById('val-lista');
+  const empIdx = document.getElementById('sel-emp').value;
+  if (empIdx === '') { panel.style.display='none'; return; }
+  const emp = getEmps()[Number(empIdx)];
+  const per = document.getElementById('inp-per').value;
+  const checks = [];
+
+  // CUIL
+  const cuil = (emp.cuil||'').replace(/\D/g,'');
+  checks.push({ ok: cuil.length===11, msg: `CUIL: ${cuil.length===11?'✓ OK':'✗ Inválido ('+cuil.length+' dígitos)'}` });
+  // CBU
+  const cbu = (emp.cbu||'').replace(/\D/g,'');
+  if (emp.formaPago==='3') checks.push({ ok: cbu.length===22, msg: `CBU: ${cbu.length===22?'✓ OK':'✗ Inválido ('+cbu.length+' dígitos)'}` });
+  // Período
+  const perRes = per.length===6 ? getPeriodo(per) : null;
+  checks.push({ ok: !!perRes && !perRes.fallback, warn: perRes?.fallback, msg: perRes ? (perRes.fallback?`⚠ Usando período ${perRes.key}`:`✓ Período ${per} OK`) : '✗ Sin período configurado' });
+  // Fecha ingreso
+  checks.push({ ok: !!emp.ingreso, warn: !emp.ingreso, msg: `Fecha ingreso: ${emp.ingreso?'✓ '+fmtFecha(emp.ingreso):'⚠ No cargada'}` });
+
+  const hasIssue = checks.some(c => !c.ok);
+  panel.style.display = hasIssue ? 'block' : 'none';
+  lista.innerHTML = checks.filter(c => !c.ok || c.warn).map(c =>
+    `<div class="${c.ok?(c.warn?'val-warn':'val-ok'):'val-err'}">${c.msg}</div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// LIQUIDACIÓN INDIVIDUAL
+// ═══════════════════════════════════════════════════════
+function calcularLiq(emp, per, conPres) {
+  const perRes = getPeriodo(per);
+  if (!perRes) return null;
+  const antig = emp.antig || 0;
+  let baseJub=0, baseLei=0, baseOs=0, baseSind=0, baseFaec=0;
+  const haberes = [];
+  perRes.p.conceptos.filter(c=>c.tipo!=='DESC').forEach(c => {
+    const base = c.monto||0;
+    const mA = c.antig ? base*antig*0.01 : 0;
+    const mP = (c.pres&&conPres) ? (base+mA)*(1/12) : 0;
+    const total = base+mA+mP;
+    haberes.push({c, base, mA, mP, total});
+    if(c.retJub)  baseJub  += total;
+    if(c.retLei)  baseLei  += total;
+    if(c.retOs)   baseOs   += total;
+    if(c.retSind) baseSind += total;
+    if(c.retFaec) baseFaec += total;
+  });
+  const descuentos = [];
+  perRes.p.conceptos.filter(c=>c.tipo==='DESC').forEach(c => {
+    let monto = 0;
+    const n=c.nombre.toLowerCase(), cod=c.codContr;
+    if(cod==='0000000900'||n.includes('jubil'))      monto=baseJub*(c.pct/100)+c.fijo;
+    else if(cod==='0000000905'||n.includes('19032')) monto=baseLei*(c.pct/100)+c.fijo;
+    else if(cod==='0000000910'||(n.includes('obra')&&n.includes('soc'))) monto=baseOs*(c.pct/100)+c.fijo;
+    else if(cod==='0000000923'||n.includes('faec'))  monto=baseFaec*(c.pct/100)+c.fijo;
+    else if(cod==='0000000920'||n.includes('sindicato')) monto=baseSind*(c.pct/100)+c.fijo;
+    else if(cod==='0000000953'||n.includes('osecac')) monto=c.fijo||100;
+    else monto=baseJub*(c.pct/100)+c.fijo;
+    descuentos.push({c, monto});
+  });
+  const totalRem = haberes.filter(h=>h.c.tipo==='REM').reduce((s,h)=>s+h.total,0);
+  const totalNR  = haberes.filter(h=>h.c.tipo==='NR').reduce((s,h)=>s+h.total,0);
+  const totalDesc= descuentos.reduce((s,d)=>s+d.monto,0);
+  const neto = Math.round((totalRem+totalNR-totalDesc)*100)/100;
+  return { emp, per, perKey:perRes.key, perDesc:perRes.p.desc, perFallback:perRes.fallback, conPres, antig, haberes, descuentos, totalRem, totalNR, totalDesc, neto, conceptosPeriodo:perRes.p.conceptos };
+}
+
+function liquidar() {
+  const empE = empActual(); if(!empE){alert('Seleccioná una empresa');return;}
+  const ei = document.getElementById('sel-emp').value; if(ei===''){alert('Seleccioná un empleado');return;}
+  const emp = empE.empleados[Number(ei)];
+  const per = document.getElementById('inp-per').value;
+  if(!/^\d{6}$/.test(per)){alert('Período inválido');return;}
+  const conPres = document.getElementById('inp-pres').value==='1';
+  const d = calcularLiq(emp, per, conPres);
+  if(!d){alert('Sin período configurado');return;}
+  d.empresa = empE;
+  d.fechaPago = document.getElementById('inp-fpago').value;
+  d.tipoLiq = document.getElementById('inp-tipo').value;
+  d.nroLiq = document.getElementById('inp-nroliq').value;
+  ultimaLiq = d;
+  // Guardar en historial
+  guardarEnHistorial(d, empE);
+  renderResultado();
+}
+
+function guardarEnHistorial(d, empresa) {
+  const entrada = {
+    id: Date.now(),
+    fecha: new Date().toISOString(),
+    empresaId: empresa.id,
+    empresaNombre: empresa.razon,
+    empNombre: d.emp.nombre,
+    empCuil: d.emp.cuil,
+    per: d.per,
+    neto: d.neto,
+    totalRem: d.totalRem,
+    totalNR: d.totalNR,
+    totalDesc: d.totalDesc,
+    liqData: JSON.parse(JSON.stringify(d)),
+  };
+  DB.historial.unshift(entrada);
+  if (DB.historial.length > 500) DB.historial = DB.historial.slice(0,500);
+  guardarStorage();
+  renderHistorial();
+}
+
+// ═══════════════════════════════════════════════════════
+// LIQUIDACIÓN MÚLTIPLE
+// ═══════════════════════════════════════════════════════
+function renderMultiEmps() {
+  const div = document.getElementById('multi-emps');
+  const emps = getEmps();
+  if (!emps.length) { div.innerHTML='<div style="padding:10px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin empleados</div>'; return; }
+  div.innerHTML = emps.map((e,i)=>`
+    <div class="multi-emp-row">
+      <input type="checkbox" class="multi-check" data-idx="${i}" checked>
+      <span class="multi-emp-nombre">${e.nombre}</span>
+      <span class="multi-emp-estado" id="multi-est-${i}" style="color:var(--txt3)">—</span>
+    </div>`).join('');
+}
+
+function toggleTodosMulti() {
+  const checks = document.querySelectorAll('.multi-check');
+  const allChecked = [...checks].every(c=>c.checked);
+  checks.forEach(c=>c.checked=!allChecked);
+}
+
+async function liquidarMultiple() {
+  const empE = empActual(); if(!empE){alert('Seleccioná una empresa');return;}
+  const per = document.getElementById('multi-per').value;
+  if(!/^\d{6}$/.test(per)){alert('Período inválido');return;}
+  const fpago = document.getElementById('multi-fpago').value;
+  const conPres = document.getElementById('multi-pres').value==='1';
+  const checks = [...document.querySelectorAll('.multi-check')].filter(c=>c.checked);
+  if(!checks.length){alert('Seleccioná al menos un empleado');return;}
+
+  document.getElementById('multi-prog').style.display='block';
+  ultimasLiqMulti=[];
+  let ok=0, err=0;
+
+  for(let i=0; i<checks.length; i++){
+    const idx = Number(checks[i].dataset.idx);
+    const emp = empE.empleados[idx];
+    const est = document.getElementById(`multi-est-${idx}`);
+    document.getElementById('multi-prog-txt').textContent=`Liquidando ${i+1}/${checks.length}: ${emp.nombre}`;
+    document.getElementById('multi-prog-fill').style.width=((i+1)/checks.length*100)+'%';
+    est.textContent='⏳';
+    try{
+      const d = calcularLiq(emp, per, conPres);
+      if(!d) throw new Error('Sin período');
+      d.empresa=empE; d.fechaPago=fpago; d.tipoLiq='M'; d.nroLiq=String(i+1);
+      ultimasLiqMulti.push(d);
+      guardarEnHistorial(d, empE);
+      est.textContent='$'+moneda(d.neto);
+      est.style.color='var(--grn)';
+      ok++;
+    }catch(e){
+      est.textContent='✗ Error';
+      est.style.color='var(--red)';
+      err++;
+    }
+    await new Promise(r=>setTimeout(r,30));
+  }
+  document.getElementById('multi-prog-txt').textContent=`✓ Completado: ${ok} liquidados, ${err} errores`;
+  if(ok>0){
+    toast(`${ok} empleados liquidados ✓`);
+    // Mostrar resumen en main
+    renderResultadoMulti();
+  }
+}
+
+function renderResultadoMulti(){
+  if(!ultimasLiqMulti.length) return;
+  const totalNeto = ultimasLiqMulti.reduce((s,d)=>s+d.neto,0);
+  const totalRem  = ultimasLiqMulti.reduce((s,d)=>s+d.totalRem,0);
+  const totalNR   = ultimasLiqMulti.reduce((s,d)=>s+d.totalNR,0);
+  const totalDesc = ultimasLiqMulti.reduce((s,d)=>s+d.totalDesc,0);
+  document.getElementById('main').innerHTML=`
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+  <div style="font-family:var(--mono);font-size:12px;color:var(--txt2);flex:1">
+    📋 Liquidación masiva — ${ultimasLiqMulti[0].empresa.razon} — ${ultimasLiqMulti[0].per}
+  </div>
+  <div style="display:flex;gap:7px">
+    <button class="btn bg" onclick="generarLSDMultiple()">📄 LSD-ARCA (todos)</button>
+    <button class="btn bh" onclick="generarPDFMultiple()">📑 PDFs (todos)</button>
+  </div>
+</div>
+<div class="sgrid">
+  <div class="scard"><div class="scard-lbl">EMPLEADOS</div><div class="scard-val" style="color:var(--acc2)">${ultimasLiqMulti.length}</div></div>
+  <div class="scard"><div class="scard-lbl">TOTAL HABERES</div><div class="scard-val" style="color:var(--grn)">$${moneda(totalRem)}</div></div>
+  <div class="scard"><div class="scard-lbl">TOTAL DESCUENTOS</div><div class="scard-val" style="color:var(--red)">$${moneda(totalDesc)}</div></div>
+  <div class="scard" style="border-color:var(--grn)"><div class="scard-lbl">TOTAL NETOS</div><div class="scard-val" style="color:var(--grn)">$${moneda(totalNeto)}</div></div>
+</div>
+<div style="background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden">
+  <table class="res-tabla">
+    <tr><th>Empleado</th><th class="r">Haberes</th><th class="r">No Rem.</th><th class="r">Descuentos</th><th class="r">Neto</th></tr>
+    ${ultimasLiqMulti.map(d=>`<tr>
+      <td>${d.emp.nombre}<br><span style="font-family:var(--mono);font-size:9px;color:var(--txt3)">${d.emp.categoria||''}</span></td>
+      <td class="r">$${moneda(d.totalRem)}</td>
+      <td class="r" style="color:var(--acc2)">$${moneda(d.totalNR)}</td>
+      <td class="r" style="color:var(--red)">$${moneda(d.totalDesc)}</td>
+      <td class="r" style="color:var(--grn);font-weight:600">$${moneda(d.neto)}</td>
+    </tr>`).join('')}
+    <tr style="background:var(--surf3);font-weight:600">
+      <td>TOTALES</td>
+      <td class="r">$${moneda(totalRem)}</td>
+      <td class="r">$${moneda(totalNR)}</td>
+      <td class="r">$${moneda(totalDesc)}</td>
+      <td class="r" style="color:var(--grn)">$${moneda(totalNeto)}</td>
+    </tr>
+  </table>
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// HISTORIAL
+// ═══════════════════════════════════════════════════════
+function renderHistorial() {
+  const div = document.getElementById('lista-historial');
+  const q = (document.getElementById('hist-filtro')?.value||'').toLowerCase();
+  const empE = empActual();
+  let items = DB.historial.filter(h => {
+    if (empE && h.empresaId !== empE.id) return false;
+    if (q && !h.empNombre.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  if (!items.length) { div.innerHTML='<div style="padding:14px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin liquidaciones guardadas</div>'; return; }
+  div.innerHTML = items.slice(0,100).map((h,i)=>`
+    <div class="hist-item">
+      <div class="hist-per">${h.per.slice(0,4)}/${h.per.slice(4,6)}</div>
+      <div>
+        <div class="hist-nom">${h.empNombre}</div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--txt3)">${new Date(h.fecha).toLocaleDateString('es-AR')}</div>
+      </div>
+      <div class="hist-neto">$${moneda(h.neto)}</div>
+      <button class="hist-btn" onclick="verHistorialDetalle(${DB.historial.indexOf(h)})">Ver</button>
+    </div>`).join('');
+}
+
+function verHistorialDetalle(idx) {
+  historialDetIdx = idx;
+  const h = DB.historial[idx];
+  document.getElementById('mo-hist-title').textContent = `${h.empNombre} — ${h.per.slice(0,4)}/${h.per.slice(4,6)}`;
+  document.getElementById('mo-hist-body').innerHTML = `
+    <div class="sgrid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="scard"><div class="scard-lbl">HABERES</div><div class="scard-val" style="color:var(--grn);font-size:14px">$${moneda(h.totalRem)}</div></div>
+      <div class="scard"><div class="scard-lbl">DESCUENTOS</div><div class="scard-val" style="color:var(--red);font-size:14px">$${moneda(h.totalDesc)}</div></div>
+      <div class="scard"><div class="scard-lbl">NETO</div><div class="scard-val" style="color:var(--grn);font-size:14px">$${moneda(h.neto)}</div></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--txt3)">
+      Empresa: ${h.empresaNombre} · Liquidado: ${new Date(h.fecha).toLocaleString('es-AR')}
+    </div>`;
+  abrirMo('mo-hist-det');
+}
+
+function reimprimirDesdeHistorial() {
+  if (historialDetIdx===null) return;
+  const h = DB.historial[historialDetIdx];
+  if (!h.liqData) { toast('Sin datos para reimprimir', true); return; }
+  ultimaLiq = h.liqData;
+  cerrarMo('mo-hist-det');
+  renderResultado();
+  showTab('t-liq');
+}
+
+function limpiarHistorial() {
+  if(!confirm('¿Eliminar todo el historial de la empresa actual?'))return;
+  const empE = empActual();
+  if(empE) DB.historial = DB.historial.filter(h=>h.empresaId!==empE.id);
+  else DB.historial = [];
+  guardarStorage(); renderHistorial(); toast('Historial eliminado');
+}
+
+// ═══════════════════════════════════════════════════════
+// RESUMEN EMPRESA
+// ═══════════════════════════════════════════════════════
+function renderResumen() {
+  const per = document.getElementById('res-per').value;
+  const div = document.getElementById('res-panel');
+  const empE = empActual();
+  if(!empE){div.innerHTML='<div style="padding:13px;color:var(--txt3);font-family:var(--mono);font-size:10px">Seleccioná una empresa primero</div>';return;}
+  const emps = empE.empleados||[];
+  if(!emps.length){div.innerHTML='<div style="padding:13px;color:var(--txt3);font-family:var(--mono);font-size:10px">Sin empleados</div>';return;}
+
+  // Buscar última liq de cada empleado para el período
+  const rows = emps.map(emp => {
+    const hists = DB.historial.filter(h=>h.empresaId===empE.id&&h.empCuil===emp.cuil&&(!per||h.per===per));
+    const last = hists[0];
+    return { emp, last };
+  });
+
+  const totalNeto = rows.filter(r=>r.last).reduce((s,r)=>s+r.last.neto,0);
+  const totalRem  = rows.filter(r=>r.last).reduce((s,r)=>s+r.last.totalRem,0);
+  const totalDesc = rows.filter(r=>r.last).reduce((s,r)=>s+r.last.totalDesc,0);
+
+  div.innerHTML = `
+<div style="padding:8px 13px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+  <div class="scard"><div class="scard-lbl">TOTAL HABERES</div><div class="scard-val" style="color:var(--grn);font-size:13px">$${moneda(totalRem)}</div></div>
+  <div class="scard"><div class="scard-lbl">TOTAL DESCUENTOS</div><div class="scard-val" style="color:var(--red);font-size:13px">$${moneda(totalDesc)}</div></div>
+  <div class="scard"><div class="scard-lbl">TOTAL NETOS</div><div class="scard-val" style="color:var(--grn);font-size:13px">$${moneda(totalNeto)}</div></div>
+</div>
+<div style="padding:0 13px 13px">
+  <table class="res-tabla" style="background:var(--surf);border-radius:var(--r);overflow:hidden">
+    <tr><th>Empleado</th><th>Cat.</th><th class="r">Haberes</th><th class="r">Neto</th><th class="r">Período</th></tr>
+    ${rows.map(({emp,last})=>`<tr>
+      <td>${emp.nombre}</td>
+      <td style="font-family:var(--mono);font-size:9px;color:var(--txt3)">${emp.categoria||''}</td>
+      <td class="r">${last?'$'+moneda(last.totalRem):'—'}</td>
+      <td class="r" style="color:var(--grn);font-weight:600">${last?'$'+moneda(last.neto):'—'}</td>
+      <td class="r" style="font-family:var(--mono);font-size:9px;color:var(--txt3)">${last?last.per.slice(0,4)+'/'+last.per.slice(4,6):'—'}</td>
+    </tr>`).join('')}
+  </table>
+</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// VENCIMIENTOS
+// ═══════════════════════════════════════════════════════
+function calcularVencimientos() {
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
+  const mes = hoy.getMonth(); // 0-based
+  const vctos = [];
+
+  // F931 — vence el 10 de cada mes para el mes anterior
+  const f931 = new Date(anio, mes, 10);
+  if (f931 < hoy) f931.setMonth(f931.getMonth()+1);
+  const diasF931 = Math.round((f931-hoy)/(1000*60*60*24));
+  vctos.push({ desc:'Presentación F931 (AFIP)', fecha:f931, dias:diasF931, tipo: diasF931<=5?'urgente':diasF931<=10?'proximo':'ok' });
+
+  // LSD — mismo vencimiento que F931
+  const lsd = new Date(f931);
+  vctos.push({ desc:'Libro Sueldos Digital (LSD-ARCA)', fecha:lsd, dias:diasF931, tipo:diasF931<=5?'urgente':diasF931<=10?'proximo':'ok' });
+
+  // SAC — 30/6 y 31/12
+  const sacJun = new Date(anio, 5, 30);
+  const sacDic = new Date(anio, 11, 31);
+  [sacJun, sacDic].forEach(d => {
+    if (d >= hoy) {
+      const dias = Math.round((d-hoy)/(1000*60*60*24));
+      vctos.push({ desc:'Pago SAC', fecha:d, dias, tipo:dias<=15?'urgente':dias<=30?'proximo':'ok' });
+    }
+  });
+
+  // Vacaciones — recordatorio si hay empleados con más de 1 año
+  const emps = getEmps();
+  emps.forEach(emp => {
+    if ((emp.antig||0) >= 1 && emp.ingreso) {
+      const ingreso = new Date(emp.ingreso.slice(0,4), emp.ingreso.slice(4,6)-1, emp.ingreso.slice(6,8));
+      const anivMes = ingreso.getMonth();
+      const proxAniv = new Date(anio, anivMes, ingreso.getDate());
+      if (proxAniv < hoy) proxAniv.setFullYear(anio+1);
+      const dias = Math.round((proxAniv-hoy)/(1000*60*60*24));
+      if (dias <= 60) {
+        vctos.push({ desc:`Vacaciones: ${emp.nombre}`, fecha:proxAniv, dias, tipo:dias<=15?'urgente':dias<=30?'proximo':'ok' });
+      }
+    }
+  });
+
+  return vctos.sort((a,b)=>a.dias-b.dias);
+}
+
+function renderVencimientos() {
+  const div = document.getElementById('lista-vctos');
+  const vctos = calcularVencimientos();
+  if(!vctos.length){div.innerHTML='<div style="padding:13px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin vencimientos próximos</div>';return;}
+  div.innerHTML = vctos.map(v=>`
+    <div class="vcto-item">
+      <div class="vcto-badge ${v.tipo}">${v.dias===0?'HOY':v.dias===1?'MAÑANA':v.dias+' días'}</div>
+      <div class="vcto-desc">${v.desc}</div>
+      <div class="vcto-fecha">${v.fecha.toLocaleDateString('es-AR')}</div>
+    </div>`).join('');
+}
+
+function verificarVencimientos() {
+  const vctos = calcularVencimientos();
+  const urgentes = vctos.filter(v=>v.tipo==='urgente');
+  const btn = document.getElementById('btn-vcto');
+  if(urgentes.length>0){btn.style.display='block';btn.textContent=`⚠ ${urgentes.length} vencimiento${urgentes.length>1?'s':''}`;}
+  else btn.style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════
+// COPIAR PERÍODO
+// ═══════════════════════════════════════════════════════
+function copiarUltimoPeriodo() {
+  const claves = Object.keys(DB.periodos).sort();
+  if(!claves.length){alert('No hay períodos para copiar');return;}
+  const ultimo = claves[claves.length-1];
+  const nuevo = prompt(`Copiar período ${ultimo} a:\nIngresá el nuevo período (AAAAMM):`, '');
+  if(!nuevo||!/^\d{6}$/.test(nuevo)){return;}
+  if(DB.periodos[nuevo]&&!confirm(`El período ${nuevo} ya existe. ¿Sobreescribir?`))return;
+  DB.periodos[nuevo] = JSON.parse(JSON.stringify(DB.periodos[ultimo]));
+  DB.periodos[nuevo].desc = '';
+  guardarStorage();
+  renderPeriodos();
+  toast(`Período ${nuevo} creado como copia de ${ultimo}. Abrilo para editar los montos.`);
+  // Abrir el nuevo para editar
+  abrirMo('mo-periodo');
+  moPeriodo(nuevo);
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER RESULTADO INDIVIDUAL
+// ═══════════════════════════════════════════════════════
+function renderResultado() {
+  const d = ultimaLiq;
+  const emp = d.emp;
+  const hoy = new Date();
+  const fh = `${pad2(hoy.getDate())}/${pad2(hoy.getMonth()+1)}/${hoy.getFullYear()}`;
+  const anioStr = d.per.slice(0,4);
+  const mesNom = new Date(Number(anioStr), Number(d.per.slice(4,6))-1, 1)
+    .toLocaleString('es-AR',{month:'long'});
+  const mesNomCap = mesNom.charAt(0).toUpperCase() + mesNom.slice(1);
+  const raz  = d.empresa.razon||'—';
+  const cuit = d.empresa.cuit||'';
+  const loc  = d.empresa.loc||'Rosario';
+
+  // ── Calcular columna BASE acumulada por bloque ──
+  // El recibo original muestra la base acumulada en cada fila:
+  //   fila base       → base del concepto
+  //   fila antigüedad → base del concepto (sobre la que se aplica el %)
+  //   fila presentismo→ base + antigüedad (sobre la que se aplica el %)
+  //   fila descuento  → base acumulada total (rem+NR que tributan ese desc)
+
+  // Pre-calcular base acumulada jubilación y OS para los descuentos
+  let baseJub=0, baseOs=0, baseSind=0, baseFaec=0, baseLei=0;
+  d.haberes.forEach(h=>{
+    if(h.c.retJub)  baseJub  += h.total;
+    if(h.c.retLei)  baseLei  += h.total;
+    if(h.c.retOs)   baseOs   += h.total;
+    if(h.c.retSind) baseSind += h.total;
+    if(h.c.retFaec) baseFaec += h.total;
+  });
+
+  // Mapa de descuentos por código para intercalarlos
+  const descMap = {};
+  d.descuentos.forEach(dd => { descMap[dd.c.codContr] = dd; });
+
+  // ── Generar filas de una sola tabla unificada ──
+  // El original mezcla todos en una sola tabla:
+  // Para cada haber: fila base, fila antig, fila pres,
+  //   luego inmediatamente sus descuentos correspondientes (jub/lei después del 1er bloque REM, OS/sind/faec después de cada bloque)
+
+  function monedaR(n) { return n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+
+  // fila(concepto, unidades, base, haber, desc)
+  // base y haber/desc pueden ser número o null
+  function fila(concepto, unidades, base, haber, desc) {
+    return `<tr>
+      <td class="rc-concepto">${concepto}</td>
+      <td class="rc-uni">${unidades}</td>
+      <td class="rc-base">${base !== null ? '$ '+monedaR(base) : ''}</td>
+      <td class="rc-hab">${haber !== null ? '$ '+monedaR(haber) : ''}</td>
+      <td class="rc-desc">${desc !== null ? '$ '+monedaR(desc) : ''}</td>
+    </tr>`;
+  }
+
+  let filas = '';
+  let descUsados = new Set();
+
+  d.haberes.forEach((h, idx) => {
+    const nm = h.c.label || h.c.nombre;
+    const isNR = h.c.tipo === 'NR';
+
+    // Unidades del concepto base
+    const uBase = h.c.unidades || '';
+
+    // Valor unitario para columna Base (monto / dias si unidades es número)
+    const uNum = parseFloat((uBase).replace(',','.'));
+    const valorUnitario = (uNum > 1) ? h.base / uNum : h.base;
+
+    // Fila base del concepto:
+    //   Base = valor unitario (ej: 36.468,13 para sueldo básico con 30 días)
+    //   Haberes = h.base (el monto total del concepto)
+    filas += fila(nm, uBase, valorUnitario, h.base, null);
+
+    // Fila antigüedad:
+    //   Base = h.base (el monto base sobre el que aplica el %)
+    //   Haberes = h.mA
+    if (h.mA > 0) {
+      const eAntig = isNR ? `Antigüedad - ${nm}` : 'Adicional por antigüedad';
+      filas += fila(eAntig, `${d.antig},00 %`, h.base, h.mA, null);
+    }
+
+    // Fila presentismo:
+    //   Base = h.base + h.mA (base + antigüedad)
+    //   Haberes = h.mP
+    if (h.mP > 0) {
+      const ePres = isNR ? `Presentismo - ${nm}` : 'Adicional por asistencia y puntualidad';
+      filas += fila(ePres, '8,33 %', h.base + h.mA, h.mP, null);
+    }
+
+    // Descuentos intercalados después de cada bloque
+    const descsDelBloque = d.descuentos.filter(dd => {
+      if (descUsados.has(dd.c.codContr + '_' + idx)) return false;
+      const n = dd.c.nombre.toLowerCase();
+      const cod = dd.c.codContr;
+      if (h.c.retJub  && (cod==='0000000900'||n.includes('jubil'))) return true;
+      if (h.c.retLei  && (cod==='0000000905'||n.includes('19032')||n.includes('inssjp'))) return true;
+      if (h.c.retOs   && (cod==='0000000910'||(n.includes('obra')&&n.includes('soc')))) return true;
+      if (h.c.retFaec && (cod==='0000000923'||n.includes('faec'))) return true;
+      if (h.c.retSind && (cod==='0000000920'||n.includes('sindicato'))) return true;
+      if (h.c.retOsecac&&(cod==='0000000953'||n.includes('osecac'))) return true;
+      return false;
+    });
+
+    descsDelBloque.forEach(dd => {
+      const cod = dd.c.codContr;
+      const n   = dd.c.nombre.toLowerCase();
+      // Base del descuento = base imponible acumulada total de ese tipo
+      let baseDesc = null;
+      if      (cod==='0000000900'||n.includes('jubil'))                    baseDesc = baseJub;
+      else if (cod==='0000000905'||n.includes('19032')||n.includes('inssjp')) baseDesc = baseLei;
+      else if (cod==='0000000910'||(n.includes('obra')&&n.includes('soc'))) baseDesc = baseOs;
+      else if (cod==='0000000923'||n.includes('faec'))                     baseDesc = baseFaec;
+      else if (cod==='0000000920'||n.includes('sindicato'))                baseDesc = baseSind;
+
+      // Monto proporcional del descuento para este bloque
+      const proporcion = (baseDesc && baseDesc > 0) ? h.total / baseDesc : 0;
+      const montoBloque = dd.c.fijo > 0 ? dd.c.fijo : dd.monto * proporcion;
+
+      const key = cod + '_' + idx;
+      if (!descUsados.has(key)) {
+        descUsados.add(key);
+        // Descuento: Base = base imponible total, Descuentos = monto proporcional
+        filas += fila(dd.c.label||dd.c.nombre, dd.c.unidades||'', baseDesc, null, montoBloque);
+      }
+    });
+  });
+
+  // Fila totales
+  const totalHab = d.totalRem + d.totalNR;
+
+  function reciboHTML(copia) {
+    const esOrig = copia === 'orig';
+    const copyLabel = esOrig ? 'ORIGINAL' : 'DUPLICADO';
+
+    return `<div class="recibo-orig" id="recibo-${copia}">
+
+  <div class="ro-copy-label">${copyLabel}</div>
+
+  <!-- ENCABEZADO -->
+  <div class="ro-header">
+    <div class="ro-header-izq">
+      <div class="ro-empresa">Empresa</div>
+      <div class="ro-empresa-val">${raz}</div>
+      <div class="ro-cuit-dom">C.U.I.T. ${fmtCuil2(cuit)}</div>
+      <div class="ro-cuit-dom">${d.empresa.dom||''}</div>
+    </div>
+    <div class="ro-header-der">
+      <div class="ro-titulo-recibo">Recibo de Haberes – Ley 20.744</div>
+      <div class="ro-empleador-nombre">${emp.nombre}</div>
+      <div class="ro-empleador-dom">${emp.banco||''}</div>
+      <div class="ro-periodo">Periodo de pago &nbsp;&nbsp; ${anioStr} ${mesNomCap} - mensual</div>
+    </div>
+  </div>
+
+  <!-- DATOS EMPLEADO — fila 1 -->
+  <table class="ro-emp-tabla">
+    <tr class="ro-emp-hdr">
+      <th>Empleado</th><th>C.U.I.L.</th><th>Legajo</th>
+      <th>Fecha Ingreso</th><th>Antigüedad</th><th>Convenio</th>
+    </tr>
+    <tr class="ro-emp-val">
+      <td>${emp.nombre}</td>
+      <td>${fmtCuil(emp.cuil)}</td>
+      <td>${emp.legajo||''}</td>
+      <td>${fmtFecha(emp.ingreso)||''}</td>
+      <td>${d.antig}</td>
+      <td>${emp.convenio||'130/75'}</td>
+    </tr>
+    <tr class="ro-emp-hdr">
+      <th>Categoria</th><th>Tarea</th><th colspan="2">Tipo jornada</th>
+      <th colspan="2">Rem. asignada</th>
+    </tr>
+    <tr class="ro-emp-val">
+      <td>${emp.categoria||''}</td>
+      <td>${emp.tarea||''}</td>
+      <td colspan="2">${emp.jornada||'completa (48hs)'}</td>
+      <td colspan="2">$0,00</td>
+    </tr>
+  </table>
+
+  <!-- TABLA CONCEPTOS -->
+  <table class="ro-tabla">
+    <thead>
+      <tr>
+        <th class="rc-concepto">Concepto</th>
+        <th class="rc-uni">Unidades</th>
+        <th class="rc-base">Base</th>
+        <th class="rc-hab">Haberes</th>
+        <th class="rc-desc">Descuentos</th>
+      </tr>
+    </thead>
+    <tbody>${filas}</tbody>
+    <tfoot>
+      <tr class="ro-totales">
+        <td colspan="3">Totales</td>
+        <td class="rc-hab ro-tot-val">$ ${monedaR(totalHab)}</td>
+        <td class="rc-desc ro-tot-val">$ ${monedaR(d.totalDesc)}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- NETO Y LETRAS -->
+  <div class="ro-neto-section">
+    <div class="ro-neto-izq">
+      <div class="ro-neto-label">Neto a cobrar</div>
+      <div class="ro-neto-letras">${numLetras(Math.floor(d.neto))} con ${pad2(Math.round((d.neto%1)*100))}/100</div>
+    </div>
+    <div class="ro-neto-val">$ ${monedaR(d.neto)}</div>
+  </div>
+
+  <!-- DATOS COBRO -->
+  <div class="ro-cobro">
+    <div class="ro-cobro-grid">
+      <div>
+        <div class="ro-cobro-lbl">Lugar y fecha de cobro:</div>
+        <div class="ro-cobro-val">${loc}, ${fh}</div>
+      </div>
+      <div>
+        <div class="ro-cobro-lbl">Depositado en: &nbsp; Cuenta N°:</div>
+        <div class="ro-cobro-val">${emp.cbu||''}</div>
+      </div>
+      <div>
+        <div class="ro-cobro-lbl">Banco</div>
+        <div class="ro-cobro-val">${emp.banco||''}</div>
+      </div>
+    </div>
+    <div class="ro-cobro-os">Obra social: ${emp.osCod||'126205'} &nbsp;·&nbsp; Contribuciones Patronales</div>
+  </div>
+
+  <!-- LEGAL -->
+  <div class="ro-legal">
+    <div>Artículo 12, Ley 17250</div>
+    <div>Recibí copia fiel del original de esta liquidación conforme a lo establecido por el art. 139, LCT (s/Ley 27.802)</div>
+  </div>
+
+  <!-- FIRMAS -->
+  <div class="ro-firmas">
+    <div class="ro-firma">
+      <div class="ro-firma-linea"></div>
+      <div class="ro-firma-lbl">${esOrig ? 'FIRMA EMPLEADOR' : 'FIRMA EMPLEADO'}</div>
+    </div>
+    <div class="ro-firma" style="text-align:center">
+      <div class="ro-firma-linea"></div>
+      <div class="ro-firma-lbl">ACLARACIÓN</div>
+    </div>
+    <div class="ro-firma" style="text-align:right">
+      <div class="ro-firma-linea"></div>
+      <div class="ro-firma-lbl">FECHA</div>
+    </div>
+  </div>
+
+</div>`;
+  }
+
+  document.getElementById('main').innerHTML=`
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+  <div style="font-family:var(--mono);font-size:12px;color:var(--txt2);flex:1">
+    📋 ${emp.nombre} · ${d.empresa.razon} · ${d.per}
+    ${d.perFallback?`<span style="color:var(--ylw);font-size:10px"> ⚠ usando ${d.perKey}</span>`:''}
+  </div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap">
+    <button class="btn bg" onclick="generarLSD()">📄 LSD-ARCA</button>
+    <button class="btn bh" onclick="generarConceptosTxt()">📃 TXT Conceptos</button>
+    <button class="btn bh" onclick="generarPDFReal()">📑 PDF Recibos</button>
+    <button class="btn bh" onclick="window.print()">🖨 Imprimir</button>
+  </div>
+</div>
+<div class="sgrid">
+  <div class="scard"><div class="scard-lbl">TOTAL HABERES</div><div class="scard-val" style="color:var(--grn)">$${moneda(d.totalRem)}</div></div>
+  <div class="scard"><div class="scard-lbl">TOTAL NO REM.</div><div class="scard-val" style="color:var(--acc2)">$${moneda(d.totalNR)}</div></div>
+  <div class="scard"><div class="scard-lbl">DESCUENTOS</div><div class="scard-val" style="color:var(--red)">$${moneda(d.totalDesc)}</div></div>
+  <div class="scard" style="border-color:var(--grn)"><div class="scard-lbl">NETO A COBRAR</div><div class="scard-val" style="color:var(--grn)">$${moneda(d.neto)}</div></div>
+</div>
+<div class="recibos-wrap-orig">
+  ${reciboHTML('orig')}
+  ${reciboHTML('dup')}
+</div>`;
+}
+
+function fmtCuil2(c){if(!c||c.length<11)return c||'';return`${c.slice(0,2)}-${c.slice(2,10)}-${c.slice(10)}`;}
+
+// ═══════════════════════════════════════════════════════
+// EXPORTAR — LSD & CONCEPTOS
+// ═══════════════════════════════════════════════════════
+function armarLSD(liqArr) {
+  const pL=(v,n)=>String(v).padStart(n,'0');
+  const pR=(v,n)=>String(v).slice(0,n).padEnd(n,' ');
+  const z=(v,n)=>String(Math.round(Math.abs(v)*100)).padStart(n,'0');
+
+  const cuit = (liqArr[0].empresa.cuit||'').replace(/\D/g,'');
+  const per  = liqArr[0].per;
+  const tipo = liqArr[0].tipoLiq||'M';
+  const nro  = String(liqArr[0].nroLiq||'1').padStart(5,'0');
+  const fp   = (liqArr[0].fechaPago||'').replace(/\D/g,'').slice(0,8).padStart(8,'0');
+
+  // ── REG 01 — 35 chars ──
+  const cantEmp = String(liqArr.length).padStart(6,'0');
+  const r1 = '01' + pL(cuit,11) + 'SJ' + pL(per,6) + tipo + nro + '30' + cantEmp;
+
+  const lineas = [r1];
+
+  liqArr.forEach(d => {
+    const cuil   = (d.emp.cuil||'').replace(/\D/g,'');
+    const fpago  = d.emp.formaPago||'3';
+    const cbu    = (d.emp.cbu||'').replace(/\D/g,'');
+    const codOS  = d.emp.osCod||'126205';
+
+    // ── REG 02 — 115 chars ──
+    const r2 = '02' +
+      pL(cuil,11) +
+      pR(d.emp.legajo||'',10) +
+      pR('',50) +
+      (fpago==='3' ? pR(cbu,22) : pR('',22)) +
+      '000' + fp + '        ' + fpago;
+    lineas.push(r2);
+
+    // ── REG 03 — 51 chars cada uno ──
+    const r3 = (cod,cant,u,imp,dc) =>
+      '03' + pL(cuil,11) + pR(String(cod),10) +
+      (cant!==null ? String(Math.round(Math.abs(cant)*100)).padStart(5,'0') : '00000') +
+      ((u&&u.trim()) ? u.trim()[0] : ' ') +
+      String(Math.round(Math.abs(imp)*100)).padStart(15,'0') +
+      dc + '      ';
+
+    d.haberes.forEach(h => {
+      const cant = parseFloat((h.c.unidades||'30').replace(',','.'))||30;
+      lineas.push(r3(h.c.codContr, cant, 'D', h.base, 'D'));
+      if(h.mA>0) lineas.push(r3(h.c.codContr, d.antig, 'A', h.mA, 'D'));
+      if(h.mP>0) lineas.push(r3(h.c.codContr, null, ' ', h.mP, 'D'));
+    });
+    d.descuentos.forEach(dd => lineas.push(r3(dd.c.codContr, null, ' ', dd.monto, 'C')));
+
+    // ── REG 04 — 370 chars ──
+    // Plantilla exacta del modelo ARCA (ejemplo vacío del Excel oficial)
+    const TMPL = '04000000000000000000000  000     0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000';
+
+    function putAt(s, start, val) {
+      const a = s.split('');
+      const v = String(val);
+      for(let i=0;i<v.length;i++){if(start+i<a.length)a[start+i]=v[i];}
+      return a.join('');
+    }
+
+    // Bases imponibles para el F931
+    const baseJub  = d.haberes.filter(h=>h.c.retJub).reduce((s,h)=>s+h.total,0);
+    const baseLei  = d.haberes.filter(h=>h.c.retLei).reduce((s,h)=>s+h.total,0);
+    const baseOs   = d.haberes.filter(h=>h.c.retOs).reduce((s,h)=>s+h.total,0);
+    const remBruta = d.totalRem + d.totalNR;
+
+    let r4 = TMPL;
+    r4 = putAt(r4,  2, pL(cuil,11));       // CUIL
+    r4 = putAt(r4, 19, '1');               // tipo operación: Decreto 814 comercio
+    r4 = putAt(r4, 48, '30');              // días trabajados (pos 48-49)
+    r4 = putAt(r4, 59, codOS.padStart(6,'0').slice(0,6)); // cod obra social (pos 59-64)
+
+    // Bases imponibles desde pos 68
+    // Orden según spec F.931 ARCA (pos base-0):
+    // pos 68:  aporteAdicOS(15)
+    // pos 83:  contribAdicOS(15)
+    // pos 98:  baseDifApOSFSR(15)
+    // pos 113: baseDifCoOSFSR(15)
+    // pos 128: baseDifLRT(15)
+    // pos 143: remMaternidad(15)  ← PRIMERO maternidad (siempre 0)
+    // pos 158: remBruta(15)       ← DESPUÉS rem bruta
+    // pos 173: base1 aportes prev SIPA(15)
+    // pos 188: base2 contrib prev SIPA(15)
+    // pos 203: base3 FNE/AAFF/RENATRE(15)
+    // pos 218: base4 aportes OS/FSR(15)
+    // pos 233: base5 aportes INSSJyP(15)
+    // pos 248: base6 aportes diferenciales(15)
+    // pos 263: base7 aportes especiales(15)
+    // pos 278: base8 contrib OS/FSR(15)
+    // pos 293: base9 LRT(15)
+    // pos 308: baseDifApSS(15)
+    // pos 323: baseDifCoSS(15)
+    // pos 338: base10(15)
+    // pos 353: importeDetREM2(15)
+    // pos 368: importeDetraer(15)  → total 370 ✓
+    const bases = [
+      '0'.repeat(15),   // aporteAdicOS
+      '0'.repeat(15),   // contribAdicOS
+      '0'.repeat(15),   // baseDifApOSFSR
+      '0'.repeat(15),   // baseDifCoOSFSR
+      '0'.repeat(15),   // baseDifLRT
+      '0'.repeat(15),   // remMaternidad (siempre 0 sin situación de revista acorde)
+      z(remBruta,15),   // remBruta
+      z(baseJub,15),    // base1: aportes prev (SIPA)
+      z(baseJub,15),    // base2: contrib prev (SIPA)
+      z(remBruta,15),   // base3: FNE/AAFF/RENATRE
+      z(baseOs,15),     // base4: aportes OS/FSR
+      z(baseJub,15),    // base5: aportes INSSJyP
+      '0'.repeat(15),   // base6: aportes diferenciales
+      '0'.repeat(15),   // base7: aportes especiales
+      z(baseOs,15),     // base8: contrib OS/FSR
+      z(remBruta,15),   // base9: LRT
+      '0'.repeat(15),   // baseDifApSS
+      '0'.repeat(15),   // baseDifCoSS
+      z(baseJub,15),    // base10
+      '0'.repeat(15),   // importeDetREM2
+      '0'.repeat(15),   // importeDetraer (ley 27430)
+    ].join('');
+
+    for(let i=0;i<bases.length;i++){
+      if(68+i<370) r4=putAt(r4,68+i,bases[i]);
+    }
+
+    if(r4.length!==370) console.warn('R04 largo incorrecto:',r4.length);
+    lineas.push(r4);
+  });
+
+  return lineas.join('\r\n');
+}
+function generarLSD(){
+  if(!ultimaLiq){alert('Liquidá primero');return;}
+  const txt = armarLSD([ultimaLiq]);
+  const cuit=(ultimaLiq.empresa.cuit||'').replace(/\D/g,'');
+  descargar(txt,`LSD_${cuit}_${ultimaLiq.per}_${ultimaLiq.emp.cuil}.txt`);
+  toast('TXT LSD-ARCA generado ✓');
+}
+
+function generarLSDMultiple(){
+  if(!ultimasLiqMulti.length){alert('Ejecutá liquidación masiva primero');return;}
+  const txt = armarLSD(ultimasLiqMulti);
+  const cuit=(ultimasLiqMulti[0].empresa.cuit||'').replace(/\D/g,'');
+  descargar(txt,`LSD_MASIVO_${cuit}_${ultimasLiqMulti[0].per}.txt`);
+  toast(`TXT LSD-ARCA masivo — ${ultimasLiqMulti.length} empleados ✓`);
+}
+
+function generarConceptosTxt(){
+  if(!ultimaLiq){alert('Liquidá primero');return;}
+
+  // Formato posicional ARCA — 195 caracteres por línea
+  // Campo 1:  pos  1- 6  (6)  → Código ARCA
+  // Campo 2:  pos  7-16  (10) → Código contribuyente
+  // Campo 3:  pos 17-166 (150)→ Descripción concepto
+  // Campo 4:  pos 167    (1)  → Marca repetible
+  // Campo 5:  pos 168    (1)  → SIPA aportes
+  // Campo 6:  pos 169    (1)  → SIPA contribuciones
+  // Campo 7:  pos 170    (1)  → INSSJyP aportes
+  // Campo 8:  pos 171    (1)  → INSSJyP contribuciones
+  // Campo 9:  pos 172    (1)  → OS aportes
+  // Campo 10: pos 173    (1)  → OS contribuciones
+  // Campo 11: pos 174    (1)  → FSR aportes
+  // Campo 12: pos 175    (1)  → FSR contribuciones
+  // Campo 13: pos 176    (1)  → RENATEA aportes
+  // Campo 14: pos 177    (1)  → RENATEA contribuciones
+  // Campo 15: pos 178    (1)  → Libre (espacio)
+  // Campo 16: pos 179    (1)  → AAFF contribuciones
+  // Campo 17: pos 180    (1)  → Libre (espacio)
+  // Campo 18: pos 181    (1)  → FNE contribuciones
+  // Campo 19: pos 182    (1)  → Libre (espacio)
+  // Campo 20: pos 183    (1)  → LRT contribuciones
+  // Campo 21: pos 184    (1)  → Reg. diferenciales aportes
+  // Campo 22: pos 185    (1)  → Libre (espacio)
+  // Campo 23: pos 186    (1)  → Reg. especiales aportes
+  // Campo 24: pos 187-195(9)  → Libre (espacios)
+  // TOTAL: 195
+
+  // Quitar acentos para evitar problema de bytes UTF-8 vs Latin-1
+  // ARCA valida longitud en bytes — á,é,í,ó,ú,ñ,ü en UTF-8 = 2 bytes
+  const quitarAcentos = s => String(s)
+    .replace(/á/g,'a').replace(/é/g,'e').replace(/í/g,'i')
+    .replace(/ó/g,'o').replace(/ú/g,'u').replace(/Á/g,'A')
+    .replace(/É/g,'E').replace(/Í/g,'I').replace(/Ó/g,'O')
+    .replace(/Ú/g,'U').replace(/ñ/g,'n').replace(/Ñ/g,'N')
+    .replace(/ü/g,'u').replace(/Ü/g,'U');
+  const pL = (v,n) => quitarAcentos(v).padEnd(n,' ').slice(0,n);
+  const pLn = (v,n) => String(v).padStart(n,'0').slice(-n);
+
+  const lineas = ultimaLiq.conceptosPeriodo.map(c => {
+    const isREM  = c.tipo === 'REM';
+    const isNR   = c.tipo === 'NR';
+    const isDESC = c.tipo === 'DESC';
+
+    // Aportes/contribuciones según tipo
+    // REM: todos 1 salvo diferenciales y especiales
+    // NR: SIPA=0, INSSJyP=0, OS=1, FSR=1, RENATEA=0, AAFF=0, FNE=0, LRT=1, diferenciales=0
+    // DESC: todos 0
+    let sipa_ap, sipa_co, ins_ap, ins_co, os_ap, os_co, fsr_ap, fsr_co;
+    let ren_ap, ren_co, aaff, fne, lrt, dif_ap, esp_ap;
+
+    if (isREM) {
+      sipa_ap=1; sipa_co=1; ins_ap=1; ins_co=1;
+      os_ap=1; os_co=1; fsr_ap=1; fsr_co=1;
+      ren_ap=1; ren_co=1; aaff=1; fne=1; lrt=1;
+      dif_ap=0; esp_ap=0;
+    } else if (isNR) {
+      sipa_ap=0; sipa_co=0; ins_ap=0; ins_co=0;
+      os_ap=c.retOs?1:0; os_co=c.retOs?1:0;
+      fsr_ap=c.retOs?1:0; fsr_co=c.retOs?1:0;
+      ren_ap=0; ren_co=0; aaff=0; fne=0;
+      lrt=c.retOs?1:0; dif_ap=0; esp_ap=0;
+    } else { // DESC
+      sipa_ap=0; sipa_co=0; ins_ap=0; ins_co=0;
+      os_ap=0; os_co=0; fsr_ap=0; fsr_co=0;
+      ren_ap=0; ren_co=0; aaff=0; fne=0;
+      lrt=0; dif_ap=0; esp_ap=0;
+    }
+
+    const linea =
+      pL(c.codAfip, 6) +
+      pL(c.codContr, 10) +
+      pL(c.label || c.nombre, 150) +
+      '1' +          // marca repetible
+      sipa_ap + sipa_co +
+      ins_ap  + ins_co  +
+      os_ap   + os_co   +
+      fsr_ap  + fsr_co  +
+      ren_ap  + ren_co  +
+      ' ' +          // libre
+      aaff +
+      ' ' +          // libre
+      fne +
+      ' ' +          // libre
+      lrt +
+      dif_ap +
+      ' ' +          // libre
+      esp_ap +
+      '         ';   // 9 espacios libres
+
+    if (linea.length !== 195) {
+      console.warn('Concepto ' + c.codContr + ' largo incorrecto: ' + linea.length);
+    }
+    return linea;
+  });
+
+  const cuit = (ultimaLiq.empresa.cuit||'').replace(/\D/g,'');
+  const per  = ultimaLiq.per;
+  // Codificar como Latin-1 compatible (sin acentos problemáticos)
+  const contenido = lineas.join('\r\n') + '\r\n';
+  descargar(contenido, 'Conceptos_Contribuyente_' + cuit + '_' + per + '.txt', 'text/plain;charset=latin-1');
+  toast('TXT Conceptos (195 chars/línea) descargado ✓');
+}
+function generarPDFReal() {
+  if(!ultimaLiq){alert('Liquidá primero');return;}
+  generarPDFDeArray([ultimaLiq], `Recibo_${ultimaLiq.emp.cuil}_${ultimaLiq.per}.pdf`);
+}
+
+function generarPDFMultiple() {
+  if(!ultimasLiqMulti.length){alert('Ejecutá liquidación masiva primero');return;}
+  generarPDFDeArray(ultimasLiqMulti, `Recibos_${ultimasLiqMulti[0].per}.pdf`);
+}
+
+function generarPDFDeArray(liqs, nombreArchivo) {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit:'mm', format:'a4' });
+    const hoy = new Date();
+
+    liqs.forEach((d, idx) => {
+      if(idx>0) doc.addPage();
+      const emp = d.emp;
+      const mesNom = new Date(d.per.slice(0,4), d.per.slice(4,6)-1, 1).toLocaleString('es-AR',{month:'long'});
+
+      // Función helper
+      const text=(txt,x,y,opts={})=>doc.text(String(txt),x,y,opts);
+      const line=(x1,y1,x2,y2)=>{doc.line(x1,y1,x2,y2);}
+
+      ['orig','dup'].forEach((copia, ci) => {
+        const yOff = ci===0 ? 0 : 143;
+        doc.setFontSize(7);
+        doc.setFont('helvetica','bold');
+        text(copia==='orig'?'ORIGINAL — FIRMA DEL EMPLEADOR':'DUPLICADO — FIRMA DEL EMPLEADO', 195, 8+yOff, {align:'right'});
+        line(10, 10+yOff, 200, 10+yOff);
+
+        // Encabezado empresa
+        doc.setFontSize(9); doc.setFont('helvetica','bold');
+        text(d.empresa.razon||'—', 10, 15+yOff);
+        doc.setFontSize(7); doc.setFont('helvetica','normal');
+        text(`C.U.I.T. ${d.empresa.cuit||''}`, 10, 19+yOff);
+        text(`${d.per.slice(0,4)} ${mesNom} - mensual`, 195, 15+yOff, {align:'right'});
+
+        // Datos empleado
+        doc.setFillColor(240,240,240); doc.rect(10, 21+yOff, 190, 5, 'F');
+        doc.setFontSize(7); doc.setFont('helvetica','bold');
+        ['Empleado','C.U.I.L.','Legajo','F.Ingreso','Ant.','Categoría'].forEach((h,i)=>{
+          text(h, 10+[0,60,90,110,130,145][i], 24.5+yOff);
+        });
+        doc.setFont('helvetica','normal');
+        text(emp.nombre, 10, 29+yOff);
+        text(fmtCuil(emp.cuil), 60, 29+yOff);
+        text(emp.legajo||'', 90, 29+yOff);
+        text(fmtFecha(emp.ingreso), 110, 29+yOff);
+        text(String(d.antig), 130, 29+yOff);
+        text((emp.categoria||'').slice(0,20), 145, 29+yOff);
+        line(10, 31+yOff, 200, 31+yOff);
+
+        // Header tabla
+        let y = 34+yOff;
+        doc.setFillColor(0,0,0); doc.rect(10, y, 190, 4.5, 'F');
+        doc.setTextColor(255,255,255); doc.setFontSize(6.5);
+        text('Cód.', 11, y+3.2); text('Concepto', 22, y+3.2);
+        text('Unid.', 125, y+3.2); text('Haberes', 143, y+3.2, {align:'right'});
+        text('Desc.', 163, y+3.2, {align:'right'}); text('No Rem.', 200, y+3.2, {align:'right'});
+        doc.setTextColor(0,0,0); y += 5.5;
+
+        // Filas haberes
+        d.haberes.forEach(h => {
+          const isNR = h.c.tipo==='NR';
+          if(isNR) { doc.setFillColor(240,247,255); doc.rect(10,y-3,190,4,'F'); }
+          doc.setFontSize(6.5);
+          text(h.c.codContr.replace(/^0+/,'').padStart(4,'0'), 11, y);
+          text((h.c.label||h.c.nombre).slice(0,48), 22, y);
+          text(h.c.unidades||'', 125, y);
+          if(!isNR) text('$'+moneda(h.base), 143, y, {align:'right'});
+          else text('$'+moneda(h.base), 200, y, {align:'right'});
+          line(10, y+1, 200, y+1); y+=4;
+          if(h.mA>0){
+            const e=isNR?`Antigüedad - ${(h.c.label||h.c.nombre).slice(0,30)}`:'Adicional por antigüedad';
+            if(isNR){doc.setFillColor(240,247,255);doc.rect(10,y-3,190,4,'F');}
+            text(e, 22, y);
+            text(`${d.antig},00%`, 125, y);
+            if(!isNR) text('$'+moneda(h.mA), 143, y, {align:'right'});
+            else text('$'+moneda(h.mA), 200, y, {align:'right'});
+            line(10,y+1,200,y+1); y+=4;
+          }
+          if(h.mP>0){
+            const e=isNR?`Presentismo - ${(h.c.label||h.c.nombre).slice(0,30)}`:'Adicional por asistencia';
+            if(isNR){doc.setFillColor(240,247,255);doc.rect(10,y-3,190,4,'F');}
+            text(e, 22, y);
+            text('8,33%', 125, y);
+            if(!isNR) text('$'+moneda(h.mP), 143, y, {align:'right'});
+            else text('$'+moneda(h.mP), 200, y, {align:'right'});
+            line(10,y+1,200,y+1); y+=4;
+          }
+        });
+
+        // Filas descuentos
+        d.descuentos.forEach(dd => {
+          doc.setFillColor(255,245,245); doc.rect(10,y-3,190,4,'F');
+          text(dd.c.codContr.replace(/^0+/,'').padStart(4,'0'), 11, y);
+          text((dd.c.label||dd.c.nombre).slice(0,48), 22, y);
+          text(dd.c.unidades||'', 125, y);
+          text('$'+moneda(dd.monto), 163, y, {align:'right'});
+          doc.setFillColor(255,255,255);
+          line(10,y+1,200,y+1); y+=4;
+        });
+
+        // Totales
+        doc.setFillColor(230,230,230); doc.rect(10,y,190,5,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(7);
+        text('Totales', 11, y+3.5);
+        text('$'+moneda(d.totalRem), 143, y+3.5, {align:'right'});
+        text('$'+moneda(d.totalDesc), 163, y+3.5, {align:'right'});
+        text('$'+moneda(d.totalNR), 200, y+3.5, {align:'right'});
+        doc.setFont('helvetica','normal'); y+=8;
+
+        // Neto y son pesos
+        doc.setFontSize(6.5);
+        text(`Son pesos: ${numLetras(Math.floor(d.neto))} con ${pad2(Math.round((d.neto%1)*100))}/100`, 10, y);
+        doc.setFillColor(0,0,0); doc.rect(155, y-4, 45, 8, 'F');
+        doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(7);
+        text('Neto a cobrar', 177.5, y-1.5, {align:'center'});
+        doc.setFontSize(10);
+        text('$'+moneda(d.neto), 177.5, y+3, {align:'center'});
+        doc.setTextColor(0,0,0); doc.setFont('helvetica','normal'); doc.setFontSize(6.5);
+        y+=10;
+        text(`Depositado en Cta. N°: ${emp.cbu||''}`, 10, y); y+=4;
+        text(`OS: ${emp.osCod||'126205'} O.S. EMPLEADOS DE COMERCIO`, 10, y);
+        text(`${d.empresa.loc||'Rosario'}, ${hoy.toLocaleDateString('es-AR')}`, 195, y, {align:'right'});
+        y+=8;
+        line(10,y,60,y); line(140,y,200,y);
+        text('FIRMA EMPLEADOR', 35, y+3.5, {align:'center'});
+        text('FIRMA EMPLEADO', 170, y+3.5, {align:'center'});
+      });
+    });
+
+    doc.save(nombreArchivo);
+    toast(`PDF generado — ${liqs.length} recibo${liqs.length>1?'s':''} ✓`);
+  } catch(e) {
+    toast('Error al generar PDF: ' + e.message, true);
+    window.print();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// IMPORTAR EXCEL / CSV
+// ═══════════════════════════════════════════════════════
+function importarExcel(ev) {
+  const f = ev.target.files[0]; if(!f) return;
+  ev.target.value='';
+  const ext = f.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+
+  reader.onload = e => {
+    try {
+      let empleados = [];
+      if(ext==='csv') {
+        const lineas = e.target.result.split('\n').filter(l=>l.trim());
+        const headers = lineas[0].split(/[,;]/).map(h=>h.trim().toLowerCase());
+        for(let i=1;i<lineas.length;i++){
+          const vals = lineas[i].split(/[,;]/);
+          const fila = {};
+          headers.forEach((h,j)=>fila[h]=vals[j]?.trim()||'');
+          const emp = mapearFila(fila);
+          if(emp.nombre&&emp.cuil) empleados.push(emp);
+        }
+      }
+      if(!empleados.length){
+        alert('No se pudieron leer empleados del archivo. Verificá que sea CSV con columnas: nombre, cuil, categoria, antig, cbu, banco, legajo, ingreso.');
+        return;
+      }
+      const empE = empActual();
+      if(!empE){alert('Seleccioná una empresa primero');return;}
+      if(!empE.empleados) empE.empleados=[];
+      let nuevos=0, actualizados=0;
+      empleados.forEach(emp=>{
+        const idx = empE.empleados.findIndex(e=>e.cuil===emp.cuil);
+        if(idx>=0){empE.empleados[idx]={...empE.empleados[idx],...emp};actualizados++;}
+        else{empE.empleados.push(emp);nuevos++;}
+      });
+      guardarStorage(); renderEmpleadosList(); renderMultiEmps();
+      toast(`Importados: ${nuevos} nuevos, ${actualizados} actualizados ✓`);
+    } catch(err) { toast('Error al leer el archivo: '+err.message, true); }
+  };
+
+  if(ext==='csv') reader.readAsText(f, 'UTF-8');
+  else { toast('Por ahora solo se admite CSV. Guardá el Excel como CSV y volvé a intentar.', true); }
+}
+
+function mapearFila(f) {
+  // Intentar mapear columnas comunes
+  const get = (...keys) => { for(const k of keys){ if(f[k]) return f[k]; } return ''; };
+  return {
+    nombre: get('nombre','apellido y nombre','apellido_nombre','name').toUpperCase().trim(),
+    cuil: get('cuil').replace(/\D/g,''),
+    categoria: get('categoria','categoría','cat'),
+    antig: Number(get('antig','antigüedad','antiguedad','años','anios'))||0,
+    cbu: get('cbu').replace(/\D/g,''),
+    banco: get('banco'),
+    legajo: get('legajo'),
+    ingreso: get('ingreso','fecha_ingreso','f_ingreso').replace(/\D/g,''),
+    tarea: get('tarea'),
+    sector: get('sector'),
+    formaPago: '3',
+    osCod: '126205',
+    jornada: 'completa (48hs)',
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// BIBLIOTECA & PERÍODO
+// ═══════════════════════════════════════════════════════
+let bibSel2 = new Set(); // alias para evitar conflicto
+
+function renderBiblioteca() {
+  const q = (document.getElementById('bib-search')?.value||'').toLowerCase();
+  const div = document.getElementById('bib-lista');
+  let html = '';
+  BIBLIOTECA.forEach(grupo => {
+    const disponibles = grupo.items.filter(i=>
+      !concTmp.find(c=>c.codContr===i.codContr) &&
+      (!q || i.nombre.toLowerCase().includes(q) || i.codContr.includes(q) || i.codAfip.includes(q))
+    );
+    if(!disponibles.length) return;
+    html+=`<div class="bib-section"><div class="bib-section-title">${grupo.grupo}</div>
+    ${disponibles.map(i=>{
+      const sel=bibSel.has(i.codContr);
+      const tc=i.tipo==='REM'?'rem':i.tipo==='NR'?'nr':'desc';
+      return `<div class="bib-item${sel?' selected':''}" onclick="toggleBib('${i.codContr}',this)">
+        <input type="checkbox" class="bib-check" ${sel?'checked':''} onclick="event.stopPropagation();toggleBib('${i.codContr}',this.closest('.bib-item'))">
+        <span class="bib-cod">${i.codContr}</span>
+        <span class="bib-nombre">${i.nombre}</span>
+        <span class="bib-tipo ${tc}">${i.tipo}</span>
+      </div>`;
+    }).join('')}</div>`;
+  });
+  div.innerHTML = html||'<div style="padding:12px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin resultados</div>';
+}
+
+function toggleBib(cod,el){
+  if(bibSel.has(cod)){bibSel.delete(cod);el.classList.remove('selected');}
+  else{bibSel.add(cod);el.classList.add('selected');}
+  const cb=el.querySelector('.bib-check');if(cb)cb.checked=bibSel.has(cod);
+}
+
+function agregarSeleccionados(){
+  if(!bibSel.size){toast('Seleccioná al menos un concepto',true);return;}
+  bibSel.forEach(cod=>{
+    if(concTmp.find(c=>c.codContr===cod)) return;
+    const b=BIB_FLAT.find(x=>x.codContr===cod);
+    if(b) concTmp.push(mkConc(b));
+  });
+  bibSel.clear(); renderBiblioteca(); renderConcTmp(); toast('Conceptos agregados ✓');
+}
+
+function renderConcTmp(){
+  const div=document.getElementById('mop-conceptos');
+  const cnt=document.getElementById('mop-conc-count');
+  if(cnt)cnt.textContent=`(${concTmp.length})`;
+  if(!concTmp.length){div.innerHTML='<div style="padding:12px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin conceptos.</div>';return;}
+  div.innerHTML=concTmp.map((c,i)=>{
+    const tc=c.tipo==='REM'?'rem':c.tipo==='NR'?'nr':'desc';
+    const ms=c.tipo==='DESC'?(c.pct?c.pct+'%':'')+' '+(c.fijo?'$'+moneda(c.fijo):''):'$'+moneda(c.monto||0);
+    return `<div class="conc-item" onclick="editarConcepto(${i})">
+      <span class="conc-tipo ${tc}">${c.tipo}</span>
+      <span class="conc-nombre">${c.label||c.nombre}</span>
+      <span class="conc-monto">${ms.trim()}</span>
+      <button class="edit-btn" onclick="event.stopPropagation();moverConc(${i},-1)">↑</button>
+      <button class="edit-btn" onclick="event.stopPropagation();moverConc(${i},1)">↓</button>
+    </div>`;
+  }).join('');
+}
+
+function moverConc(i,d){const n=i+d;if(n<0||n>=concTmp.length)return;[concTmp[i],concTmp[n]]=[concTmp[n],concTmp[i]];renderConcTmp();}
+
+function editarConcepto(idx){
+  const c=concTmp[idx];
+  document.getElementById('moc-idx').value=idx;
+  document.getElementById('moc-info-nombre').textContent=c.nombre;
+  document.getElementById('moc-info-cod').textContent=`Código ARCA: ${c.codAfip} · Cód. contrib.: ${c.codContr} · Tipo: ${c.tipo}`;
+  document.getElementById('moc-label').value=c.label||'';
+  document.getElementById('moc-monto').value=c.monto||'';
+  document.getElementById('moc-unidades').value=c.unidades||'';
+  document.getElementById('moc-antig').checked=!!c.antig;
+  document.getElementById('moc-pres').checked=!!c.pres;
+  document.getElementById('moc-pct').value=c.pct||0;
+  document.getElementById('moc-fijo').value=c.fijo||0;
+  document.getElementById('ret-jub').checked=!!c.retJub;
+  document.getElementById('ret-lei').checked=!!c.retLei;
+  document.getElementById('ret-os').checked=!!c.retOs;
+  document.getElementById('ret-sind').checked=!!c.retSind;
+  document.getElementById('ret-faec').checked=!!c.retFaec;
+  document.getElementById('ret-osecac').checked=!!c.retOsecac;
+  const esDesc=c.tipo==='DESC';
+  document.getElementById('moc-monto-section').style.display=esDesc?'none':'block';
+  document.getElementById('moc-desc-section').style.display=esDesc?'block':'none';
+  document.getElementById('moc-ret-section').style.display=esDesc?'none':'block';
+  abrirMo('mo-conc');
+}
+
+function guardarConcepto(){
+  const idx=Number(document.getElementById('moc-idx').value);
+  const c=concTmp[idx];
+  c.label=document.getElementById('moc-label').value.trim();
+  c.monto=Number(document.getElementById('moc-monto').value)||0;
+  c.unidades=document.getElementById('moc-unidades').value;
+  c.antig=document.getElementById('moc-antig').checked;
+  c.pres=document.getElementById('moc-pres').checked;
+  c.pct=Number(document.getElementById('moc-pct').value)||0;
+  c.fijo=Number(document.getElementById('moc-fijo').value)||0;
+  c.retJub=document.getElementById('ret-jub').checked;
+  c.retLei=document.getElementById('ret-lei').checked;
+  c.retOs=document.getElementById('ret-os').checked;
+  c.retSind=document.getElementById('ret-sind').checked;
+  c.retFaec=document.getElementById('ret-faec').checked;
+  c.retOsecac=document.getElementById('ret-osecac').checked;
+  renderConcTmp(); cerrarMo('mo-conc'); toast('Concepto guardado ✓');
+}
+
+function quitarConcepto(){
+  const idx=Number(document.getElementById('moc-idx').value);
+  concTmp.splice(idx,1); renderBiblioteca(); renderConcTmp(); cerrarMo('mo-conc');
+}
+
+function renderPeriodos(){
+  const div=document.getElementById('lista-periodos');
+  const ks=Object.keys(DB.periodos).sort().reverse();
+  if(!ks.length){div.innerHTML='<div style="padding:13px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin períodos</div>';return;}
+  div.innerHTML=ks.map(k=>{
+    const p=DB.periodos[k];
+    const nr=(p.conceptos||[]).filter(c=>c.tipo==='NR').length;
+    const rm=(p.conceptos||[]).filter(c=>c.tipo==='REM').length;
+    const ds=(p.conceptos||[]).filter(c=>c.tipo==='DESC').length;
+    return `<div class="per-card" onclick="abrirMo('mo-periodo');moPeriodo('${k}')">
+      <div><div class="per-badge">${k.slice(0,4)}/${k.slice(4,6)} <span style="font-weight:400;font-size:9px;color:var(--txt3)">— ${p.desc||''}</span></div>
+      <div class="per-sub">${rm} rem · ${nr} no rem · ${ds} desc.</div></div>
+      <div class="edit-btn">✎</div>
+    </div>`;
+  }).join('');
+}
+
+function moPeriodo(key){
+  periodoKey=key; bibSel.clear();
+  document.getElementById('mop-title').textContent=key?`Editar ${key}`:'Nuevo período';
+  document.getElementById('mop-del').style.display=key?'inline-flex':'none';
+  document.getElementById('mop-per').value=key||'';
+  document.getElementById('mop-per').disabled=!!key;
+  const p=key?(DB.periodos[key]||{}):null;
+  document.getElementById('mop-desc').value=p?.desc||'';
+  concTmp=JSON.parse(JSON.stringify(p?.conceptos||[]));
+  renderBiblioteca(); renderConcTmp();
+}
+
+function guardarPeriodo(){
+  const key=periodoKey||document.getElementById('mop-per').value.trim();
+  if(!/^\d{6}$/.test(key)){alert('Período inválido. Formato AAAAMM');return;}
+  DB.periodos[key]={desc:document.getElementById('mop-desc').value.trim(),conceptos:JSON.parse(JSON.stringify(concTmp))};
+  guardarStorage(); renderPeriodos(); onPerChange(); cerrarMo('mo-periodo');
+  toast(`Período ${key} guardado ✓`);
+}
+
+function eliminarPeriodo(){
+  if(!confirm('¿Eliminar este período?'))return;
+  delete DB.periodos[periodoKey]; guardarStorage(); renderPeriodos(); cerrarMo('mo-periodo'); toast('Eliminado');
+}
+
+// ═══════════════════════════════════════════════════════
+// NR LIBRE
+// ═══════════════════════════════════════════════════════
+function abrirNRLibre(){
+  ['nrl-nombre','nrl-cod'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nrl-monto').value='';
+  document.getElementById('nrl-unidades').value='30';
+  document.getElementById('nrl-antig').checked=true;
+  document.getElementById('nrl-pres').checked=true;
+  document.getElementById('nrl-jub').checked=false;
+  document.getElementById('nrl-lei').checked=false;
+  document.getElementById('nrl-os').checked=true;
+  document.getElementById('nrl-sind').checked=true;
+  document.getElementById('nrl-faec').checked=true;
+  document.getElementById('nrl-osecac').checked=false;
+  abrirMo('mo-nr-libre');
+}
+
+function confirmarNRLibre(){
+  const nombre=document.getElementById('nrl-nombre').value.trim();
+  if(!nombre){alert('El nombre es obligatorio');return;}
+  const cod=(document.getElementById('nrl-cod').value.trim()||('0000'+Date.now().toString().slice(-6))).padStart(10,'0');
+  concTmp.push({
+    codAfip:'551000',codContr:cod,nombre,tipo:'NR',
+    monto:Number(document.getElementById('nrl-monto').value)||0,
+    unidades:document.getElementById('nrl-unidades').value||'30',
+    antig:document.getElementById('nrl-antig').checked,
+    pres:document.getElementById('nrl-pres').checked,
+    retJub:document.getElementById('nrl-jub').checked,
+    retLei:document.getElementById('nrl-lei').checked,
+    retOs:document.getElementById('nrl-os').checked,
+    retSind:document.getElementById('nrl-sind').checked,
+    retFaec:document.getElementById('nrl-faec').checked,
+    retOsecac:document.getElementById('nrl-osecac').checked,
+    pct:0,fijo:0,label:'',
+  });
+  renderBiblioteca(); renderConcTmp(); cerrarMo('mo-nr-libre'); toast('NR agregado ✓');
+}
+
+// ═══════════════════════════════════════════════════════
+// PDF → CONCEPTOS (Claude API)
+// ═══════════════════════════════════════════════════════
+function triggerPDFInput(){setTimeout(()=>{const i=document.getElementById('inp-pdf-recibo');i.value='';i.click();},100);}
+
+// ── IMPORTAR JSON DE PERÍODO (generado por Claude en el chat) ──
+function triggerJSONInput() {
+  setTimeout(() => {
+    const i = document.getElementById('inp-json-periodo');
+    i.value = '';
+    i.click();
+  }, 100);
+}
+
+function importarJSONPeriodo(ev) {
+  const file = ev.target.files[0];
+  if (!file) return;
+  ev.target.value = '';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const raw = e.target.result;
+      // Parser robusto — acepta JSON limpio o con texto alrededor
+      let parsed = null;
+      const intentos = [
+        () => JSON.parse(raw.trim()),
+        () => { const s=raw.indexOf('{'),end=raw.lastIndexOf('}'); if(s>=0&&end>s) return JSON.parse(raw.slice(s,end+1)); throw new Error('x'); },
+        () => { const m=raw.match(/```(?:json)?\s*([\s\S]+?)\s*```/); if(m) return JSON.parse(m[1]); throw new Error('x'); },
+      ];
+      for (const fn of intentos) { try { parsed = fn(); break; } catch {} }
+
+      if (!parsed) { toast('JSON inválido — no se pudo leer el archivo', true); return; }
+
+      // Caso 1: JSON de período completo {periodo, desc, conceptos:[...]}
+      if (parsed.conceptos && Array.isArray(parsed.conceptos)) {
+        if (parsed.periodo && /^\d{6}$/.test(parsed.periodo)) {
+          document.getElementById('mop-per').value = parsed.periodo;
+          if (parsed.desc) document.getElementById('mop-desc').value = parsed.desc;
+        }
+        concTmp = parsed.conceptos.map(c => {
+          // Intentar matchear con biblioteca por código contribuyente
+          const bib = BIB_FLAT.find(b => b.codContr === c.codContr);
+          if (bib) {
+            const conc = mkConc(bib, c.monto || 0);
+            // Respetar las retenciones del JSON si están definidas
+            if (c.retJub  !== undefined) conc.retJub  = !!c.retJub;
+            if (c.retLei  !== undefined) conc.retLei  = !!c.retLei;
+            if (c.retOs   !== undefined) conc.retOs   = !!c.retOs;
+            if (c.retSind !== undefined) conc.retSind = !!c.retSind;
+            if (c.retFaec !== undefined) conc.retFaec = !!c.retFaec;
+            if (c.retOsecac !== undefined) conc.retOsecac = !!c.retOsecac;
+            if (c.label) conc.label = c.label;
+            if (c.unidades) conc.unidades = c.unidades;
+            if (c.antig !== undefined) conc.antig = !!c.antig;
+            if (c.pres  !== undefined) conc.pres  = !!c.pres;
+            return conc;
+          }
+          // Si no está en biblioteca, crear libre con los datos del JSON
+          return {
+            codAfip:   c.codAfip   || (c.tipo==='NR'?'551000':c.tipo==='DESC'?'810000':'110000'),
+            codContr:  c.codContr  || '0000000000',
+            nombre:    c.nombre    || 'Concepto importado',
+            label:     c.label     || '',
+            tipo:      c.tipo      || 'REM',
+            monto:     c.monto     || 0,
+            unidades:  c.unidades  || '',
+            antig:     !!c.antig,
+            pres:      !!c.pres,
+            retJub:    !!c.retJub,
+            retLei:    !!c.retLei,
+            retOs:     !!c.retOs,
+            retSind:   !!c.retSind,
+            retFaec:   !!c.retFaec,
+            retOsecac: !!c.retOsecac,
+            pct:       c.pct  || 0,
+            fijo:      c.fijo || 0,
+          };
+        });
+        renderBiblioteca();
+        renderConcTmp();
+        toast(`✓ ${concTmp.length} conceptos importados — revisá los montos y guardá`);
+        return;
+      }
+
+      // Caso 2: array directo de conceptos [{...},{...}]
+      if (Array.isArray(parsed)) {
+        concTmp = parsed.map(c => ({
+          codAfip: c.codAfip||'110000', codContr: c.codContr||'0000000000',
+          nombre: c.nombre||'', label: c.label||'', tipo: c.tipo||'REM',
+          monto: c.monto||0, unidades: c.unidades||'',
+          antig: !!c.antig, pres: !!c.pres,
+          retJub: !!c.retJub, retLei: !!c.retLei, retOs: !!c.retOs,
+          retSind: !!c.retSind, retFaec: !!c.retFaec, retOsecac: !!c.retOsecac,
+          pct: c.pct||0, fijo: c.fijo||0,
+        }));
+        renderBiblioteca();
+        renderConcTmp();
+        toast(`✓ ${concTmp.length} conceptos importados`);
+        return;
+      }
+
+      toast('Formato de JSON no reconocido', true);
+    } catch(err) {
+      toast('Error al leer el JSON: ' + err.message, true);
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+async function cargarDesdePDF(ev){
+  const file=ev.target.files[0];if(!file)return;ev.target.value='';
+  document.getElementById('pdf-status-msg').innerHTML='⏳ Leyendo el PDF...';
+  document.getElementById('pdf-preview').innerHTML='';
+  document.getElementById('pdf-aplicar-btn').style.display='none';
+  pdfDatosAPI=null; abrirMo('mo-pdf-status');
+  const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=()=>rej(new Error('Error al leer'));r.readAsDataURL(file);});
+  document.getElementById('pdf-status-msg').innerHTML='⏳ Analizando con Claude...';
+  try{
+    const prompt=`Analizá este recibo de sueldo argentino CCT 130/75 y extraé TODOS los conceptos. Respondé ÚNICAMENTE con JSON, sin texto adicional, sin markdown:\n{"periodo":"AAAAMM","desc":"Mes Año","conceptos":[{"nombre":"nombre exacto","tipo":"REM o NR o DESC","monto":0,"unidades":"30","antig":true,"pres":true,"retJub":true,"retLei":true,"retOs":true,"retSind":true,"retFaec":true,"retOsecac":false,"pct":0,"fijo":0,"codAfip":"110000","codContr":"0000000070"}]}\nReglas: REM=remunerativo, NR=no remunerativo, DESC=descuento. NR típico acuerdos 2025-2026: retJub=false,retLei=false,retOs=true,retSind=true,retFaec=true. No incluyas subconceptos de antigüedad/presentismo de NR porque el sistema los calcula.`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,system:'Respondés ÚNICAMENTE con JSON válido, sin texto adicional.',messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:base64}},{type:'text',text:prompt}]}]})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    const txt=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    let parsed=null;
+    for(const fn of[()=>JSON.parse(txt.trim()),()=>{const s=txt.indexOf('{'),e=txt.lastIndexOf('}');if(s>=0&&e>s)return JSON.parse(txt.slice(s,e+1));throw new Error('x');}]){try{parsed=fn();break;}catch{}}
+    if(!parsed?.conceptos?.length)throw new Error('No se extrajeron conceptos. Respuesta: '+txt.slice(0,150));
+    pdfDatosAPI=parsed;
+    const nr=parsed.conceptos.filter(c=>c.tipo==='NR').length;
+    const rm=parsed.conceptos.filter(c=>c.tipo==='REM').length;
+    const ds=parsed.conceptos.filter(c=>c.tipo==='DESC').length;
+    document.getElementById('pdf-status-msg').innerHTML=`✅ <strong>${parsed.conceptos.length} conceptos</strong> encontrados · ${rm} rem · ${nr} no rem · ${ds} desc<br>Período: <strong>${parsed.periodo||'?'}</strong> — ${parsed.desc||''}`;
+    const tc=c=>c.tipo==='REM'?'rem':c.tipo==='NR'?'nr':'desc';
+    document.getElementById('pdf-preview').innerHTML=`<div style="background:var(--bg);border:1px solid var(--brd);border-radius:var(--r);max-height:200px;overflow-y:auto">
+      ${parsed.conceptos.map(c=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 10px;border-bottom:1px solid rgba(37,42,58,.4)"><span class="bib-tipo ${tc(c)}">${c.tipo}</span><span style="flex:1;font-size:10px">${c.nombre}</span><span style="font-family:var(--mono);font-size:10px;color:var(--txt2)">${c.tipo==='DESC'?(c.pct?c.pct+'%':'$'+moneda(c.fijo||0)):'$'+moneda(c.monto||0)}</span></div>`).join('')}
+    </div>`;
+    document.getElementById('pdf-aplicar-btn').style.display='inline-flex';
+  }catch(e){document.getElementById('pdf-status-msg').innerHTML=`❌ Error: ${e.message}<br>Cargá los conceptos manualmente.`;}
+}
+
+function aplicarDesdeAPI(){
+  if(!pdfDatosAPI?.conceptos?.length)return;
+  if(pdfDatosAPI.periodo&&/^\d{6}$/.test(pdfDatosAPI.periodo)){
+    document.getElementById('mop-per').value=pdfDatosAPI.periodo;
+    if(pdfDatosAPI.desc)document.getElementById('mop-desc').value=pdfDatosAPI.desc;
+  }
+  concTmp=pdfDatosAPI.conceptos.map(c=>{
+    const b=BIB_FLAT.find(x=>x.codContr===c.codContr||x.nombre.toLowerCase()===c.nombre.toLowerCase());
+    if(b)return mkConc(b,c.monto||0);
+    return{codAfip:c.codAfip||'551000',codContr:c.codContr||'0000000000',nombre:c.nombre,tipo:c.tipo||'REM',monto:c.monto||0,unidades:c.unidades||'',antig:!!c.antig,pres:!!c.pres,retJub:!!c.retJub,retLei:!!c.retLei,retOs:!!c.retOs,retSind:!!c.retSind,retFaec:!!c.retFaec,retOsecac:!!c.retOsecac,pct:c.pct||0,fijo:c.fijo||0,label:''};
+  });
+  renderBiblioteca();renderConcTmp();cerrarMo('mo-pdf-status');
+  toast(`✓ ${concTmp.length} conceptos cargados desde el PDF`);
+}
+
+// ═══════════════════════════════════════════════════════
+// EMPRESAS & EMPLEADOS
+// ═══════════════════════════════════════════════════════
+function empActual(){return DB.empresas.find(e=>e.id===DB.empresaActual)||null;}
+function renderEmpresasSel(){const s=document.getElementById('tp-esel');s.innerHTML='<option value="">Sin empresa</option>';DB.empresas.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.text=(e.ico||'🏢')+' '+e.razon+' · '+e.cuit;s.add(o);});if(DB.empresaActual)s.value=DB.empresaActual;}
+function renderEmpresasList(){const d=document.getElementById('lista-empresas');if(!DB.empresas.length){d.innerHTML='<div style="padding:13px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin empresas</div>';return;}d.innerHTML=DB.empresas.map(e=>`<div class="ecard${e.id===DB.empresaActual?' active':''}" onclick="selEmpresa('${e.id}')"><div class="ecard-ico">${e.ico||'🏢'}</div><div class="ecard-info"><div class="ecard-name">${e.razon}</div><div class="ecard-sub">${e.cuit} · ${(e.empleados||[]).length} emp.</div></div><button class="edit-btn" onclick="event.stopPropagation();abrirMo('mo-empresa');moEmpresa('${e.id}')">✎</button></div>`).join('');}
+function moEmpresa(id){document.getElementById('moe-title').textContent=id?'Editar empresa':'Nueva empresa';document.getElementById('moe-del').style.display=id?'inline-flex':'none';document.getElementById('moe-id').value=id||'';const e=id?DB.empresas.find(x=>x.id===id):null;document.getElementById('moe-raz').value=e?.razon||'';document.getElementById('moe-cuit').value=e?.cuit||'';document.getElementById('moe-dom').value=e?.dom||'';document.getElementById('moe-loc').value=e?.loc||'Rosario';document.getElementById('moe-ico').value=e?.ico||'🏢';}
+function guardarEmpresa(){const id=document.getElementById('moe-id').value;const d={razon:document.getElementById('moe-raz').value.trim(),cuit:document.getElementById('moe-cuit').value.replace(/\D/g,''),dom:document.getElementById('moe-dom').value.trim(),loc:document.getElementById('moe-loc').value.trim()||'Rosario',ico:document.getElementById('moe-ico').value.trim()||'🏢'};if(!d.razon||!d.cuit){alert('Razón social y CUIT son obligatorios');return;}if(id){const i=DB.empresas.findIndex(x=>x.id===id);if(i>=0)DB.empresas[i]={...DB.empresas[i],...d};}else{const nid='e'+Date.now();DB.empresas.push({id:nid,...d,empleados:[]});DB.empresaActual=nid;}guardarStorage();renderEmpresasSel();renderEmpresasList();renderEmpleadosList();cerrarMo('mo-empresa');toast('Empresa guardada ✓');}
+function eliminarEmpresa(){const id=document.getElementById('moe-id').value;if(!confirm('¿Eliminar empresa y empleados?'))return;DB.empresas=DB.empresas.filter(e=>e.id!==id);if(DB.empresaActual===id)DB.empresaActual=DB.empresas[0]?.id||null;guardarStorage();renderEmpresasSel();renderEmpresasList();renderEmpleadosList();cerrarMo('mo-empresa');toast('Empresa eliminada');}
+function selEmpresa(id){DB.empresaActual=id;guardarStorage();renderEmpresasSel();renderEmpresasList();renderEmpleadosList();renderMultiEmps();renderHistorial();renderResumen();document.getElementById('tp-esel').value=id;verificarVencimientos();}
+function cambiarEmpresa(){DB.empresaActual=document.getElementById('tp-esel').value||null;guardarStorage();renderEmpresasList();renderEmpleadosList();renderMultiEmps();renderHistorial();renderResumen();}
+function getEmps(){return empActual()?.empleados||[];}
+function renderEmpleadosList() {
+  const ul  = document.getElementById('lista-emps');
+  const sel = document.getElementById('sel-emp');
+  ul.innerHTML = '';
+  sel.innerHTML = '<option value="">— Seleccioná —</option>';
+
+  // Mostrar empleados de TODAS las empresas, agrupados
+  const empE = empActual();
+  const emps = empE?.empleados || [];
+
+  // Si hay múltiples empresas, también mostrar empleados de otras en la lista
+  // pero para liquidar solo usamos los de la empresa actual
+  if (!emps.length) {
+    ul.innerHTML = '<li style="padding:13px;color:var(--txt3);font-family:var(--mono);font-size:10px;text-align:center">Sin empleados en esta empresa</li>';
+
+    // Mostrar link a otras empresas si hay empleados en ellas
+    const otrasConEmps = DB.empresas.filter(e => e.id !== DB.empresaActual && (e.empleados||[]).length > 0);
+    if (otrasConEmps.length) {
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:8px 13px;color:var(--txt3);font-family:var(--mono);font-size:9px';
+      div.textContent = `Hay empleados en: ${otrasConEmps.map(e=>e.razon).join(', ')}`;
+      ul.appendChild(div);
+    }
+    return;
+  }
+
+  emps.forEach((e, i) => {
+    const ini=e.nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
+    const li=document.createElement('li');li.className='ecard';li.style.listStyle='none';
+    li.innerHTML=`<div class="ecard-ico" style="border-radius:50%;font-size:10px">${ini}</div><div class="ecard-info"><div class="ecard-name">${e.nombre}</div><div class="ecard-sub">${e.categoria||'—'} · Ant.${e.antig||0}a</div></div><button class="edit-btn" onclick="event.stopPropagation();abrirMo('mo-empleado');moEmpleado(${i})">✎</button>`;
+    li.onclick=()=>{document.getElementById('sel-emp').value=i;validarParaLiquidar();};
+    ul.appendChild(li);
+    const o=document.createElement('option');o.value=i;o.text=e.nombre+' · '+(e.categoria||'');sel.add(o);
+  });
+  renderMultiEmps();
+}
+function moEmpleado(idx) {
+  document.getElementById('moemp-title').textContent = idx===null ? 'Nuevo empleado' : 'Editar empleado';
+  document.getElementById('moemp-del').style.display = idx!==null ? 'inline-flex' : 'none';
+  document.getElementById('moemp-idx').value = idx===null ? '' : idx;
+
+  // Poblar selector de empresa
+  const sel = document.getElementById('moemp-empresa');
+  sel.innerHTML = DB.empresas.map(e =>
+    `<option value="${e.id}">${e.ico||'🏢'} ${e.razon} · ${e.cuit}</option>`
+  ).join('');
+  if (!DB.empresas.length) {
+    sel.innerHTML = '<option value="">— Sin empresas cargadas —</option>';
+  }
+
+  // Si hay empresa actual seleccionada en el topbar, preseleccionarla
+  if (DB.empresaActual) sel.value = DB.empresaActual;
+
+  // Si editamos un empleado existente, encontrar a qué empresa pertenece
+  if (idx !== null) {
+    for (const emp of DB.empresas) {
+      if ((emp.empleados||[]).find((_,i)=>i===idx && emp.id)) {
+        // Buscar la empresa correcta por comparación de objeto
+      }
+    }
+    // Buscar empresa que tiene este empleado en el índice actual
+    const empE = empActual();
+    if (empE) sel.value = empE.id;
+  }
+  document.getElementById('moemp-empresa-orig').value = sel.value;
+
+  const e = idx!==null ? getEmps()[idx] : null;
+  document.getElementById('moemp-leg').value   = e?.legajo||'';
+  document.getElementById('moemp-nom').value   = e?.nombre||'';
+  document.getElementById('moemp-cuil').value  = e?.cuil||'';
+  document.getElementById('moemp-cat').value   = e?.categoria||'';
+  document.getElementById('moemp-ant').value   = e?.antig||0;
+  document.getElementById('moemp-ingr').value  = e?.ingreso||'';
+  document.getElementById('moemp-cbu').value   = e?.cbu||'';
+  document.getElementById('moemp-banco').value = e?.banco||'';
+  document.getElementById('moemp-sect').value  = e?.sector||'';
+  document.getElementById('moemp-tar').value   = e?.tarea||'';
+  document.getElementById('moemp-fpago').value = e?.formaPago||'3';
+  document.getElementById('moemp-psuss').value = e?.periodoSuss||'';
+  document.getElementById('moemp-fsuss').value = e?.fechaSuss||'';
+  document.getElementById('moemp-oscod').value = e?.osCod||'126205';
+  document.getElementById('moemp-jor').value   = e?.jornada||'completa (48hs)';
+  document.getElementById('err-cuil').style.display = 'none';
+  document.getElementById('err-cbu').style.display  = 'none';
+}
+function guardarEmpleado() {
+  const empId  = document.getElementById('moemp-empresa').value;
+  const empOrigId = document.getElementById('moemp-empresa-orig').value;
+  const empDest = DB.empresas.find(e => e.id === empId);
+  if (!empDest) { alert('Seleccioná una empresa'); return; }
+  const idx  = document.getElementById('moemp-idx').value;
+  const cuil = document.getElementById('moemp-cuil').value.replace(/\D/g,'');
+  if (cuil.length !== 11) { alert('CUIL inválido — debe tener 11 dígitos'); return; }
+  const d = {
+    legajo:      document.getElementById('moemp-leg').value,
+    nombre:      document.getElementById('moemp-nom').value.toUpperCase().trim(),
+    cuil,
+    categoria:   document.getElementById('moemp-cat').value,
+    antig:       Number(document.getElementById('moemp-ant').value),
+    ingreso:     document.getElementById('moemp-ingr').value,
+    cbu:         document.getElementById('moemp-cbu').value.replace(/\D/g,''),
+    banco:       document.getElementById('moemp-banco').value,
+    sector:      document.getElementById('moemp-sect').value,
+    tarea:       document.getElementById('moemp-tar').value,
+    formaPago:   document.getElementById('moemp-fpago').value,
+    periodoSuss: document.getElementById('moemp-psuss').value,
+    fechaSuss:   document.getElementById('moemp-fsuss').value,
+    osCod:       document.getElementById('moemp-oscod').value,
+    jornada:     document.getElementById('moemp-jor').value,
+  };
+  if (!d.nombre) { alert('El nombre es obligatorio'); return; }
+
+  // Si cambió de empresa, eliminar de la anterior y agregar en la nueva
+  if (idx !== '' && empOrigId && empOrigId !== empId) {
+    const empOrig = DB.empresas.find(e => e.id === empOrigId);
+    if (empOrig?.empleados) empOrig.empleados.splice(Number(idx), 1);
+    if (!empDest.empleados) empDest.empleados = [];
+    empDest.empleados.push(d);
+  } else {
+    if (!empDest.empleados) empDest.empleados = [];
+    if (idx === '') empDest.empleados.push(d);
+    else empDest.empleados[Number(idx)] = d;
+  }
+
+  // Si la empresa destino no es la actual, cambiarla para que el empleado sea visible
+  DB.empresaActual = empId;
+  guardarStorage();
+  renderEmpresasSel();
+  renderEmpresasList();
+  renderEmpleadosList();
+  cerrarMo('mo-empleado');
+  toast(`Empleado guardado en ${empDest.razon} ✓`);
+}
+function eliminarEmpleado() {
+  const empId = document.getElementById('moemp-empresa-orig').value || DB.empresaActual;
+  const emp = DB.empresas.find(e => e.id === empId) || empActual();
+  const idx = Number(document.getElementById('moemp-idx').value);
+  if (!confirm('¿Eliminar este empleado?')) return;
+  if (emp?.empleados) emp.empleados.splice(idx, 1);
+  guardarStorage();
+  renderEmpleadosList();
+  cerrarMo('mo-empleado');
+  toast('Empleado eliminado');
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function moneda(n){if(isNaN(n)||n==null)return'0,00';return n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');}
+function pad2(n){return String(n).padStart(2,'0')}
+function fmtFecha(f){if(!f||f.length<8)return f||'';return`${f.slice(6,8)}/${f.slice(4,6)}/${f.slice(0,4)}`}
+function fmtCuil(c){if(!c||c.length<11)return c||'';return`${c.slice(0,2)}-${c.slice(2,10)}-${c.slice(10)}`}
+function descargar(c,n,tipo='text/plain;charset=utf-8'){const b=new Blob([c],{type:tipo});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;a.click();}
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'')+' show';setTimeout(()=>t.classList.remove('show'),3000);}
+function showTab(id){['t-liq','t-multi','t-hist','t-res','t-emps','t-per','t-vcto','t-emp2'].forEach(t=>{const el=document.getElementById(t);if(el)el.style.display=t===id?'block':'none';});document.querySelectorAll('.stab').forEach((b,i)=>b.classList.toggle('on',['t-liq','t-multi','t-hist','t-res','t-emps','t-per','t-vcto','t-emp2'][i]===id));if(id==='t-res')renderResumen();if(id==='t-hist')renderHistorial();if(id==='t-vcto')renderVencimientos();}
+function abrirMo(id){document.getElementById(id).classList.add('open')}
+function cerrarMo(id){document.getElementById(id).classList.remove('open')}
+function numLetras(n){if(n===0)return'cero';const u=['','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];const d2=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];const c2=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];function g(n){let s='';const c=Math.floor(n/100),d=n%100;if(c>0)s+=(c===1&&d===0?'cien':c2[c])+(d>0?' ':'');if(d>0&&d<30)s+=u[d];else if(d>=30){const dv=Math.floor(d/10),uv=d%10;s+=d2[dv]+(uv>0?' y '+u[uv]:'');}return s;}if(n>=1e6){const m=Math.floor(n/1e6),r=n%1e6;return(m===1?'un millón':g(m)+' millones')+(r>0?' '+numLetras(r):'');}if(n>=1000){const m=Math.floor(n/1000),r=n%1000;return(m===1?'mil':g(m)+' mil')+(r>0?' '+g(r):'');}return g(n);}
+</script>
+</body>
+</html>
